@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F2F3F7"
+    tools:context=".MainActivity">
+
+    <!-- QQ9 Logo -->
+    <TextView
+        android:id="@+id/textViewLogo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="50dp"
+        android:text="QQ9"
+        android:textColor="#1E90FF"
+        android:textSize="48sp"
+        app:layout_constraintBottom_toTopOf="@+id/imageViewAvatar"
+        app:layout_constraintStart_toStartOf="@+id/imageViewAvatar"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 头像图片 -->
+    <ImageView
+        android:id="@+id/imageViewAvatar"
+        android:layout_width="100dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="10dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/p29"
+        app:layout_constraintBottom_toTopOf="@+id/textViewNickname"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewLogo" />
+
+    <!-- 昵称 -->
+    <TextView
+        android:id="@+id/textViewNickname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="念旧"
+        android:textColor="#333333"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/textViewAccountManagement"
+        app:layout_constraintStart_toStartOf="@+id/textViewAccountManagement"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewAvatar" />
+
+    <!-- 账号管理 -->
+    <TextView
+        android:id="@+id/textViewAccountManagement"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="18dp"
+        android:layout_marginBottom="205dp"
+        android:text="账号管理"
+        android:textColor="#999999"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/buttonLogin"
+        app:layout_constraintStart_toStartOf="@+id/imageViewAvatar"
+        app:layout_constraintTop_toBottomOf="@+id/textViewNickname" />
+
+    <!-- 一键登录按钮 -->
+
+    <!-- 服务协议和隐私保护指引复选框 -->
+
+    <!-- 添加账号按钮 -->
+
+    <!-- 新用户注册按钮 -->
+
+    <!-- 更多选项按钮 -->
+
+    <EditText
+        android:id="@+id/qqNumber"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="38dp"
+        android:gravity="center"
+        android:hint="输入QQ号"
+        android:padding="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewAccountManagement" />
+
+    <EditText
+        android:id="@+id/qqPassword"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/qqNumber"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="15dp"
+        android:gravity="center"
+        android:hint="输入QQ密码"
+        android:inputType="textPassword"
+        android:padding="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/qqNumber" />
+
+    <Button
+        android:id="@+id/buttonLogin"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/button_rounded"
+        android:text="一键登录"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/checkBoxAgreement"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewAccountManagement" />
+
+    <CheckBox
+        android:id="@+id/checkBoxAgreement"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:text="已阅读并同意服务协议和QQ隐私保护指引"
+        app:layout_constraintBottom_toTopOf="@+id/buttonMoreOptions"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonLogin" />
+
+    <Button
+        android:id="@+id/buttonAddAccount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="37dp"
+        android:background="@drawable/button_rounded"
+        android:text="添加账号"
+        android:textColor="#1E90FF"
+        android:textSize="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/buttonRegister"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonMoreOptions"
+        tools:ignore="TextSizeCheck" />
+
+    <Button
+        android:id="@+id/buttonRegister"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="149dp"
+        android:background="@drawable/button_rounded"
+        android:text="新用户注册"
+        android:textColor="#1E90FF"
+        android:textSize="10dp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/buttonAddAccount"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/buttonAddAccount"
+        tools:ignore="TouchTargetSizeCheck,TextSizeCheck" />
+
+    <Button
+        android:id="@+id/buttonMoreOptions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/button_rounded"
+        android:text="更多选项"
+        android:textColor="#1E90FF"
+        android:textSize="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/buttonAddAccount"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/buttonRegister"
+        app:layout_constraintTop_toBottomOf="@+id/checkBoxAgreement"
+        tools:ignore="TextSizeCheck" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

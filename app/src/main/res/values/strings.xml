@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">demo</string>
+    <string name="noParams">无参数启动</string>
+    <string name="newActivity">接收新页面返回值</string>
+    <string name="demo">启动的Demo</string>
+    <string name="inputName">输入姓名</string>
+    <string name="inputAge">输入年龄</string>
+    <string name="newViews">这是一个新的页面!</string>
+    <string name="backHome">返回主页</string>
+    <string name="name">姓名：</string>
+    <string name="age">年龄：</string>
+    <string name="paramsBackHome">请输入留言用于返回主页</string>
+    <string name="input">输入内容</string>
+</resources>

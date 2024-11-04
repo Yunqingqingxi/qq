@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F1F0F5"
+    >
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:text="QQ9"
+        android:textSize="48sp"
+        android:textColor="#FF72AFFF" />
+
+    <EditText
+        android:id="@+id/qqNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title"
+        android:layout_marginTop="80dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginEnd="60dp"
+        android:hint="输入QQ号"
+        android:gravity="center"
+        android:padding="12dp"
+        android:layout_centerVertical="true" />
+
+    <EditText
+        android:id="@+id/qqPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/qqNumber"
+        android:hint="输入QQ密码"
+        android:gravity="center"
+        android:padding="12dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginEnd="60dp"
+        android:layout_marginTop="20dp"
+        android:inputType="textPassword"
+        android:layout_centerVertical="true" />
+
+    <ImageView
+        android:id="@+id/loginButton"
+        android:layout_width="match_parent"
+        android:layout_height="49dp"
+        android:layout_below="@id/qqPassword"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="58dp"
+        android:layout_marginTop="45dp"
+        android:layout_marginEnd="58dp"
+        android:src="@drawable/p10" />
+
+    <CheckBox
+        android:id="@+id/agreeCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/loginButton"
+        android:layout_centerHorizontal="true"
+        android:textSize="12sp"
+        android:padding="4dp"
+        android:text="已阅读并同意服务协议和QQ隐私保护指引" />
+
+
+    <TextView
+        android:id="@+id/forgotPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/agreeCheckBox"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="忘记密码？点此注册"
+        android:textSize="14sp" />
+
+</RelativeLayout>

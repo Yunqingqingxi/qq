@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--suppress ALL -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- 顶部头像和昵称 -->
+
+    <!-- 搜索框 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#EEF2FD"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="16dp">
+
+
+        <ImageView
+            android:id="@+id/imageViewAvatar"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_margin="10dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/circle_background"
+            android:src="@drawable/p1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/imageViewPlus"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/p7"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/imageViewAvatar" />
+
+        <TextView
+            android:id="@+id/textViewNickname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="念旧"
+            android:textColor="#333333"
+            android:textSize="18sp"
+            app:layout_constraintStart_toEndOf="@id/imageViewAvatar"
+            app:layout_constraintTop_toBottomOf="@id/imageViewAvatar"
+            app:layout_constraintTop_toTopOf="@id/imageViewAvatar" />
+
+        <TextView
+            android:id="@+id/textViewStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="手机在线 - WiFi"
+            android:textColor="#999999"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@id/imageViewAvatar"
+            app:layout_constraintStart_toEndOf="@id/imageViewAvatar"
+            tools:ignore="MissingConstraints" />
+
+        <EditText
+            android:id="@+id/searchBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:hint="搜索"
+            android:background="#FFFFFF"
+            android:gravity="center"
+            android:minHeight="48dp"
+            android:textColor="#999999"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageViewAvatar" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <EditText
+        android:id="@+id/searchBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="搜索"
+        android:textSize="14sp"
+        android:textColor="#999999"
+        app:layout_constraintTop_toBottomOf="@id/textViewNickname"
+        app:layout_constraintStart_toEndOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        tools:ignore="DuplicateIds,NotSibling" />
+
+    <!-- 消息列表 -->
+    <!-- 替换 RecyclerView 为 ListView -->
+
+    <!-- 底部导航栏 -->
+
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- 消息按钮 -->
+        <ImageView
+            android:id="@+id/imageViewMessage"
+            android:layout_width="70dp"
+            android:layout_height="40dp"
+            android:src="@drawable/p2"
+            android:layout_margin="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <!-- 频道按钮 -->
+        <ImageView
+            android:id="@+id/imageViewChannel"
+            android:layout_width="70dp"
+            android:layout_height="40dp"
+            android:src="@drawable/p3"
+            android:layout_margin="10dp"
+            app:layout_constraintStart_toEndOf="@id/imageViewMessage"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <!-- 短视频按钮 -->
+        <ImageView
+            android:id="@+id/imageViewVideo"
+            android:layout_width="70dp"
+            android:layout_height="40dp"
+            android:src="@drawable/p4"
+            android:layout_margin="10dp"
+            app:layout_constraintStart_toEndOf="@id/imageViewChannel"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <!-- 联系人按钮 -->
+        <ImageView
+            android:id="@+id/imageViewContact"
+            android:layout_width="70dp"
+            android:layout_height="40dp"
+            android:src="@drawable/p5"
+            android:layout_margin="10dp"
+            app:layout_constraintStart_toEndOf="@id/imageViewVideo"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <!-- 动态按钮 -->
+        <ImageView
+            android:id="@+id/imageViewDynamic"
+            android:layout_width="70dp"
+            android:layout_height="40dp"
+            android:src="@drawable/p6"
+            android:layout_margin="10dp"
+            app:layout_constraintStart_toEndOf="@id/imageViewContact"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
