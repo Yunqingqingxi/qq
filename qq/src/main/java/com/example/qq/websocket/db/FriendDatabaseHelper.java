@@ -29,7 +29,7 @@ public class FriendDatabaseHelper extends SQLiteOpenHelper {
 
     public FriendDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-    }
+    }//啊打算大苏打撒的撒
 
     @Override
     public void onCreate(SQLiteDatabase db) {
