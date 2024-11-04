@@ -57,7 +57,7 @@ public class FriendDatabaseHelper extends SQLiteOpenHelper {
 
     // 测试2
     // 测试3
-
+    //ce==
     // 获取用户的好友列表
     public List<String> getFriendsForUser(String username) {
         SQLiteDatabase db = this.getReadableDatabase();
