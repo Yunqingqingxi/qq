@@ -42,8 +42,6 @@ public class FriendDatabaseHelper extends SQLiteOpenHelper {
         onCreate(db); // 重新创建表
     }
 
-    // 测试机
-
     // 添加好友
     public void addFriend(String username, String username1) {
         ContentValues values = new ContentValues();
@@ -56,6 +54,9 @@ public class FriendDatabaseHelper extends SQLiteOpenHelper {
             // 处理添加好友失败的情况
         }
     }
+
+    // 测试2
+    // 测试3
 
     // 获取用户的好友列表
     public List<String> getFriendsForUser(String username) {
