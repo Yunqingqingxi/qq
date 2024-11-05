@@ -7,49 +7,49 @@ import java.time.format.DateTimeFormatter;
  * ChatMessage 类，表示聊天消息的基本信息。
  */
 public class ChatMessage {
-    private final int avatarResId;           // 头像资源ID
-    private final String nickname;            // 用户昵称
-    private final String message;             // 消息内容
+    private final long id;                    // 消息ID（数据库自增主键）
+    private final String content;             // 消息内容
     private final LocalDateTime timestamp;    // 消息时间戳
-    private final boolean isSender;           // 是否为发送者的消息
+    private final String sender;              // 发送者
+    private final String receiver;            // 接收者
 
     /**
      * ChatMessage 构造函数
      *
-     * @param avatarResId 头像资源ID
-     * @param nickname 用户昵称
-     * @param message 消息内容
+     * @param id 消息ID
+     * @param content 消息内容
      * @param timestampStr 时间戳（字符串格式）
-     * @param isSender 是否为发送者的消息
+     * @param sender 发送者
+     * @param receiver 接收者
      */
-    public ChatMessage(int avatarResId, String nickname, String message, String timestampStr, boolean isSender) {
-        this.avatarResId = avatarResId;
-        this.nickname = nickname;
-        this.message = message;
+    public ChatMessage(long id, String content, String timestampStr, String sender, String receiver) {
+        this.id = id;
+        this.content = content;
         this.timestamp = parseTimestamp(timestampStr);
-        this.isSender = isSender;  // 初始化发送者标识
+        this.sender = sender;
+        this.receiver = receiver;
     }
 
     // Getter 方法
 
-    public int getAvatarResId() {
-        return avatarResId;
+    public long getId() {
+        return id;
     }
 
-    public String getNickname() {
-        return nickname;
-    }
-
-    public String getMessage() {
-        return message;
+    public String getContent() {
+        return content;
     }
 
     public String getFormattedTime() {
         return formatTimestamp(timestamp);
     }
 
-    public boolean isSender() {  // 添加 isSender 方法
-        return isSender;
+    public String getSender() {
+        return sender;
+    }
+
+    public String getReceiver() {
+        return receiver;
     }
 
     // Private 方法
@@ -68,7 +68,7 @@ public class ChatMessage {
 
     @Override
     public String toString() {
-        return String.format("ChatMessage[nickname=%s, message=%s, time=%s, isSender=%b]",
-                nickname, message, getFormattedTime(), isSender);
+        return String.format("ChatMessage[id=%d, content=%s, time=%s, sender=%s, receiver=%s]",
+                id, content, getFormattedTime(), sender, receiver);
     }
 }
