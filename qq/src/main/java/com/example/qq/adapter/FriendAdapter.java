@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+//import com.example.qq.ChatActivity3;
 import com.example.qq.ChatActivity3;
 import com.example.qq.pojo.Friend;
 import com.example.qq.R;

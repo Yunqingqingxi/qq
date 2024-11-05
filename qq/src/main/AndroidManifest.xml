@@ -15,7 +15,7 @@
             android:exported="false"
             tools:ignore="Instantiatable,WrongManifestParent">
         </service>
-        <activity android:name=".MainActivity" android:exported="true">
+        <activity android:name=".LoginActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

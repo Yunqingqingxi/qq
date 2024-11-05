@@ -68,36 +68,40 @@
         android:layout_marginEnd="16dp"
         tools:ignore="NotSibling" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/friendRecyclerView"
+    <FrameLayout
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="10dp"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintTop_toBottomOf="@+id/topBar"
         app:layout_constraintVertical_bias="0.0"
-        tools:layout_editor_absoluteX="0dp" />
+        tools:layout_editor_absoluteX="0dp">
+
+    </FrameLayout>
+
+
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#EEEDF2"
+        android:background="#F9F9F9"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <ImageView
             android:id="@+id/imageViewMessage"
-            android:layout_width="70dp"
+            android:layout_width="122dp"
             android:layout_height="40dp"
-            android:src="@drawable/p2"
+            android:src="@drawable/p32"
             android:layout_margin="10dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
+
         <ImageView
-            android:id="@+id/imageViewChannel"
-            android:layout_width="70dp"
+            android:id="@+id/imageViewContact"
+            android:layout_width="122dp"
             android:layout_height="40dp"
             android:src="@drawable/p3"
             android:layout_margin="10dp"
@@ -105,28 +109,10 @@
             app:layout_constraintTop_toTopOf="parent"/>
 
         <ImageView
-            android:id="@+id/imageViewVideo"
-            android:layout_width="70dp"
+            android:id="@+id/imageViewDynamic"
+            android:layout_width="122dp"
             android:layout_height="40dp"
             android:src="@drawable/p4"
-            android:layout_margin="10dp"
-            app:layout_constraintStart_toEndOf="@id/imageViewChannel"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-        <ImageView
-            android:id="@+id/imageViewContact"
-            android:layout_width="70dp"
-            android:layout_height="40dp"
-            android:src="@drawable/p5"
-            android:layout_margin="10dp"
-            app:layout_constraintStart_toEndOf="@id/imageViewVideo"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-        <ImageView
-            android:id="@+id/imageViewDynamic"
-            android:layout_width="70dp"
-            android:layout_height="40dp"
-            android:src="@drawable/p6"
             android:layout_margin="10dp"
             app:layout_constraintStart_toEndOf="@id/imageViewContact"
             app:layout_constraintTop_toTopOf="parent"/>
