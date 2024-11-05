@@ -1,5 +1,6 @@
 package com.example.qq.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -64,6 +65,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
      *
      * @param newFriendList 新的好友列表
      */
+    @SuppressLint("NotifyDataSetChanged")
     public void updateFriendList(List<Friend> newFriendList) {
         this.friendList.clear();  // 清空旧数据
         this.friendList.addAll(newFriendList);  // 添加新数据
@@ -119,6 +121,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
             textViewMessage = itemView.findViewById(R.id.textViewMessage);
             textViewTime = itemView.findViewById(R.id.textViewTime);
 
+            // itemView 的点击事件
             itemView.setOnClickListener(v -> {
                 int position = getBindingAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {

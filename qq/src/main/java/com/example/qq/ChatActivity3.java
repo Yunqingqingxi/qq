@@ -1,6 +1,7 @@
 package com.example.qq;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -14,8 +15,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.qq.adapter.ChatMessageAdapter;
 import com.example.qq.pojo.ChatMessage;
 import com.example.qq.websocket.db.ChatDatabaseHelper;
+import com.example.qq.websocket.domain.Message;
+import com.example.qq.websocket.web.WebClient;
+import com.example.qq.websocket.webResult.WebResult;
+import com.example.qq.websocket.webUtils.GetNowUser;
+import com.example.qq.websocket.webUtils.controller.Callback;
+import com.google.gson.Gson;
+
+import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.Map;
+
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
 
 /**
  * ChatActivity3 负责处理聊天界面功能，包括显示消息、发送消息和加载消息记录。
@@ -23,22 +36,31 @@ import java.util.ArrayList;
 public class ChatActivity3 extends BaseActivity {
 
     private EditText inputMessage; // 输入消息的 EditText
-    private String currentUsername; // 当前用户昵称
+    private static String currentUsername; // 当前用户昵称
     private String friendId; // 好友 ID（昵称）
     private RecyclerView recyclerView; // RecyclerView 用于显示聊天记录
     private ChatDatabaseHelper dbHelper; // 数据库助手实例
     private ChatMessageAdapter messageAdapter; // 消息适配器
     private ArrayList<ChatMessage> messageList; // 消息列表
+    private WebClient webClient;
+    private String token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        // 初始化webClient
+        webClient = WebClient.getInstance();
+
+
+        // 获取token
+        token = getSharedPreferences("MyPrefs", MODE_PRIVATE).getString("token", "");
+
         initialize(); // 初始化组件
         setupRecyclerView(); // 设置 RecyclerView
-        loadMessagesFromDatabase(); // 加载消息记录
-        setupListeners(); // 设置按钮点击事件
+        loadMessagesFromDatabase(currentUsername); // 加载消息记录
+        setupListeners(); // 设置按钮点击事
     }
 
     /**
@@ -46,7 +68,7 @@ public class ChatActivity3 extends BaseActivity {
      */
     private void initialize() {
         friendId = getIntent().getStringExtra("friendId");
-        currentUsername = getIntent().getStringExtra("nickname");
+        currentUsername = getSharedPreferences("MyPrefs", MODE_PRIVATE).getString("current_username", "");
         dbHelper = new ChatDatabaseHelper(this);
         messageList = new ArrayList<>();
         inputMessage = findViewById(R.id.inputMessage);
@@ -66,21 +88,62 @@ public class ChatActivity3 extends BaseActivity {
 
     /**
      * 加载消息记录
+     * 根据当前用户和好友ID查询并加载消息
      */
-    private void loadMessagesFromDatabase() {
-        try (SQLiteDatabase db = dbHelper.getReadableDatabase();
-             Cursor cursor = db.rawQuery(getChatHistoryQuery(), getChatHistoryArgs())) {
+    private void loadMessagesFromDatabase(String currentUsername) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = null;
+        System.out.println("currentUsername: " + currentUsername);
+        System.out.println("friendId: " + friendId);
+        String[] args = new String[]{currentUsername,friendId};
+        System.out.println(args[0]);
+        try {
 
-            while (cursor.moveToNext()) {
-                @SuppressLint("Range") String sender = cursor.getString(cursor.getColumnIndex(ChatDatabaseHelper.COLUMN_MESSAGE_SENDER));
-                @SuppressLint("Range") String messageContent = cursor.getString(cursor.getColumnIndex(ChatDatabaseHelper.COLUMN_MESSAGE_CONTENT));
-                int avatarResId = getAvatarResourceId(sender); // 获取头像资源ID
-                messageList.add(new ChatMessage(avatarResId, sender, messageContent, getCurrentTime(),friendId,R.drawable.p9)); // 添加聊天消息
+
+            // 获取聊天记录查询语句和参数
+            String query = getChatHistoryQuery();
+            System.out.println(query);
+
+            // 执行查询
+            cursor  = db.rawQuery(query,args);
+
+            // 判断查询结果是否为空
+            if (cursor != null && cursor.moveToFirst()) {
+                // 获取列索引（避免多次调用 `cursor.getColumnIndex`）
+                int senderColumnIndex = cursor.getColumnIndex(ChatDatabaseHelper.COLUMN_MESSAGE_SENDER);
+                int receiverColumnIndex = cursor.getColumnIndex(ChatDatabaseHelper.COLUMN_MESSAGE_RECEIVER);
+                int contentColumnIndex = cursor.getColumnIndex(ChatDatabaseHelper.COLUMN_MESSAGE_CONTENT);
+                int timestampColumnIndex = cursor.getColumnIndex(ChatDatabaseHelper.COLUMN_MESSAGE_TIMESTAMP);
+
+                // 遍历每一行记录并添加到消息列表
+                do {
+                    // 获取消息的发送者、接收者、内容、时间戳
+                    String sender = cursor.getString(senderColumnIndex);
+                    String receiver = cursor.getString(receiverColumnIndex);
+                    String messageContent = cursor.getString(contentColumnIndex);
+                    String timestamp = cursor.getString(timestampColumnIndex); // 获取时间戳
+
+                    // 获取头像资源ID
+                    int avatarResId = getAvatarResourceId(sender);
+
+                    // 创建新的 ChatMessage 实例并添加到列表
+                    messageList.add(new ChatMessage(avatarResId, sender, messageContent, timestamp, receiver, R.drawable.p9));
+                } while (cursor.moveToNext());
             }
         } catch (Exception e) {
+            // 处理异常情况
             Log.e("ChatActivity3", "Error loading messages", e);
+        } finally {
+            // 关闭 Cursor 和数据库
+            if (cursor != null) {
+                cursor.close();
+            }
+            if (db != null) {
+                db.close();
+            }
         }
     }
+
 
     /**
      * 获取用户头像资源ID
@@ -103,23 +166,14 @@ public class ChatActivity3 extends BaseActivity {
 
     /**
      * 构建聊天记录查询语句
+     * 通过当前用户和好友ID来查询消息记录
      *
      * @return 查询语句
      */
     private String getChatHistoryQuery() {
+        // 查询当前用户和好友之间的消息，按时间顺序排序
         return "SELECT * FROM " + ChatDatabaseHelper.TABLE_MESSAGES + " WHERE " +
-                "(" + ChatDatabaseHelper.COLUMN_MESSAGE_SENDER + " = ? AND " + ChatDatabaseHelper.COLUMN_MESSAGE_RECEIVER + " = ?) OR " +
-                "(" + ChatDatabaseHelper.COLUMN_MESSAGE_SENDER + " = ? AND " + ChatDatabaseHelper.COLUMN_MESSAGE_RECEIVER + " = ?) " +
-                "ORDER BY " + ChatDatabaseHelper.COLUMN_MESSAGE_TIMESTAMP + " ASC";
-    }
-
-    /**
-     * 获取聊天记录查询参数
-     *
-     * @return 查询参数
-     */
-    private String[] getChatHistoryArgs() {
-        return new String[]{currentUsername, friendId, friendId, currentUsername};
+                ChatDatabaseHelper.COLUMN_MESSAGE_SENDER + " = ? AND " + ChatDatabaseHelper.COLUMN_MESSAGE_RECEIVER + " = ? ";
     }
 
     /**
@@ -138,11 +192,18 @@ public class ChatActivity3 extends BaseActivity {
         if (!messageContent.isEmpty()) {
             insertMessageToDatabase(currentUsername, friendId, messageContent);
             int avatarResId = getAvatarResourceId(currentUsername); // 获取当前用户头像资源ID
-            ChatMessage message = new ChatMessage(avatarResId, currentUsername, messageContent, getCurrentTime(),friendId, R.drawable.p9);
+            ChatMessage message = new ChatMessage(currentUsername,friendId,messageContent,getCurrentTime(),R.drawable.p9/* 静态资源暂代 */);
             messageList.add(message);
             messageAdapter.notifyItemInserted(messageList.size() - 1);
             recyclerView.scrollToPosition(messageList.size() - 1); // 滚动到最后一条消息
             inputMessage.setText(""); // 清空输入框
+
+            // 将消息解析为 {System:1, Sender:xxx, Receiver:xxxx, message:xxxxx}
+            Message jsonMessage = new Message(1,currentUsername,friendId,messageContent);
+            String jsonString = jsonMessage.toJson().toString();
+
+            // 发送消息到服务器
+            webClient.sendMessage(jsonString);
         }
     }
 

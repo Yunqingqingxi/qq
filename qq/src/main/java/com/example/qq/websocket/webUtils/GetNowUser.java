@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 public class GetNowUser {
 
     // 定义 SharedPreferences 名称和键
-    private static final String PREFS_NAME = "user_prefs";
+    private static final String PREFS_NAME = "MyRefs";
     private static final String KEY_USERNAME = "current_username";
 
     private SharedPreferences sharedPreferences;
