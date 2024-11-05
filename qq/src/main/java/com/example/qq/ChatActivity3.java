@@ -59,7 +59,7 @@ public class ChatActivity3 extends BaseActivity {
      */
     private void setupRecyclerView() {
         recyclerView = findViewById(R.id.recyclerView);
-        messageAdapter = new ChatMessageAdapter(ChatActivity3.this,messageList);
+        messageAdapter = new ChatMessageAdapter(ChatActivity3.this,messageList,currentUsername);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(messageAdapter);
     }
@@ -75,7 +75,7 @@ public class ChatActivity3 extends BaseActivity {
                 @SuppressLint("Range") String sender = cursor.getString(cursor.getColumnIndex(ChatDatabaseHelper.COLUMN_MESSAGE_SENDER));
                 @SuppressLint("Range") String messageContent = cursor.getString(cursor.getColumnIndex(ChatDatabaseHelper.COLUMN_MESSAGE_CONTENT));
                 int avatarResId = getAvatarResourceId(sender); // 获取头像资源ID
-                messageList.add(new ChatMessage(avatarResId, sender, messageContent, getCurrentTime(),true)); // 添加聊天消息
+                messageList.add(new ChatMessage(avatarResId, sender, messageContent, getCurrentTime(),friendId,R.drawable.p9)); // 添加聊天消息
             }
         } catch (Exception e) {
             Log.e("ChatActivity3", "Error loading messages", e);
@@ -138,7 +138,7 @@ public class ChatActivity3 extends BaseActivity {
         if (!messageContent.isEmpty()) {
             insertMessageToDatabase(currentUsername, friendId, messageContent);
             int avatarResId = getAvatarResourceId(currentUsername); // 获取当前用户头像资源ID
-            ChatMessage message = new ChatMessage(avatarResId, currentUsername, messageContent, getCurrentTime(),true);
+            ChatMessage message = new ChatMessage(avatarResId, currentUsername, messageContent, getCurrentTime(),friendId, R.drawable.p9);
             messageList.add(message);
             messageAdapter.notifyItemInserted(messageList.size() - 1);
             recyclerView.scrollToPosition(messageList.size() - 1); // 滚动到最后一条消息

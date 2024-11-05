@@ -24,17 +24,20 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
     private final List<ChatMessage> messages;  // 聊天消息列表
     private final LayoutInflater inflater;      // 布局填充器
     private final Context context;              // 上下文
+    private final String currentUser;           // 当前用户的用户名或ID
 
     /**
      * 构造函数，初始化上下文和消息列表
      *
      * @param context 上下文
      * @param messages 聊天消息列表
+     * @param currentUser 当前用户的用户名或ID
      */
-    public ChatMessageAdapter(@NonNull Context context, @NonNull List<ChatMessage> messages) {
+    public ChatMessageAdapter(@NonNull Context context, @NonNull List<ChatMessage> messages, @NonNull String currentUser) {
         this.context = context;
         this.messages = messages;
         this.inflater = LayoutInflater.from(context);
+        this.currentUser = currentUser;
     }
 
     @NonNull
@@ -61,7 +64,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
 
     @Override
     public int getItemViewType(int position) {
-        return messages.get(position).isSender() ? 0 : 1; // 判断消息类型
+        // Check if the sender matches the current user
+        return messages.get(position).getSender().equals(currentUser) ? 0 : 1; // 判断消息类型
     }
 
     /**
@@ -70,19 +74,21 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
     class MessageViewHolder extends RecyclerView.ViewHolder {
         private final ImageView avatar;
         private final TextView messageText;
+//        private final TextView nicknameText;
 
         public MessageViewHolder(@NonNull View itemView, int viewType) {
             super(itemView);
             avatar = itemView.findViewById(viewType == 0 ? R.id.imageViewRight : R.id.imageViewLeft);
             messageText = itemView.findViewById(viewType == 0 ? R.id.messageTextRight : R.id.messageTextLeft);
+//            nicknameText = itemView.findViewById(viewType == 0 ? R.id.nicknameRight : R.id.nicknameLeft);
 
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
                     ChatMessage message = messages.get(position);
                     Intent intent = new Intent(context, ChatActivity3.class);
-                    intent.putExtra("nickname", message.getNickname());
-                    intent.putExtra("message", message.getMessage());
+                    intent.putExtra("nickname", message.getSender());
+                    intent.putExtra("message", message.getContent());
                     context.startActivity(intent);
                 }
             });
@@ -90,7 +96,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
 
         public void bind(ChatMessage message) {
             avatar.setImageResource(message.getAvatarResId() != 0 ? message.getAvatarResId() : R.drawable.p9); // 使用默认头像资源
-            messageText.setText(message.getMessage());
+            messageText.setText(message.getContent());
+//            nicknameText.setText(message.getNickname());
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.example.qq.pojo;
 
+import android.annotation.SuppressLint;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -12,6 +14,7 @@ public class ChatMessage {
     private final LocalDateTime timestamp;    // 消息时间戳
     private final String sender;              // 发送者
     private final String receiver;            // 接收者
+    private final int avatarResId;            // 头像资源ID
 
     /**
      * ChatMessage 构造函数
@@ -21,13 +24,15 @@ public class ChatMessage {
      * @param timestampStr 时间戳（字符串格式）
      * @param sender 发送者
      * @param receiver 接收者
+     * @param avatarResId 头像资源ID
      */
-    public ChatMessage(long id, String content, String timestampStr, String sender, String receiver) {
+    public ChatMessage(long id, String content, String timestampStr, String sender, String receiver, int avatarResId) {
         this.id = id;
         this.content = content;
         this.timestamp = parseTimestamp(timestampStr);
         this.sender = sender;
         this.receiver = receiver;
+        this.avatarResId = avatarResId;  // 初始化头像资源ID
     }
 
     // Getter 方法
@@ -52,6 +57,10 @@ public class ChatMessage {
         return receiver;
     }
 
+    public int getAvatarResId() {
+        return avatarResId;
+    }
+
     // Private 方法
 
     private LocalDateTime parseTimestamp(String timestampStr) {
@@ -66,9 +75,10 @@ public class ChatMessage {
 
     // 方法重写
 
+    @SuppressLint("DefaultLocale")
     @Override
     public String toString() {
-        return String.format("ChatMessage[id=%d, content=%s, time=%s, sender=%s, receiver=%s]",
-                id, content, getFormattedTime(), sender, receiver);
+        return String.format("ChatMessage[id=%d, content=%s, time=%s, sender=%s, receiver=%s, avatarResId=%d]",
+                id, content, getFormattedTime(), sender, receiver, avatarResId);
     }
 }
