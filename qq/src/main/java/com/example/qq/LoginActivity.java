@@ -17,7 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.qq.DAO.UserDAO;
-import com.example.qq.websocket.db.FriendDatabaseHelper;
 import com.example.qq.websocket.domain.Message;
 import com.example.qq.websocket.web.WebClient;
 import com.example.qq.websocket.webResult.WebResult;
@@ -40,13 +39,14 @@ public class LoginActivity extends AppCompatActivity {
     private TextView forgotPasswordTextView;
     private UserDAO userDAO;
     private WebClient webClient;
-    private String username;
-    private String password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // 初始化WebSocket客户端
+        webClient = WebClient.getInstance();
 
         userDAO = new UserDAO(this);
 
@@ -55,9 +55,6 @@ public class LoginActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.loginButton);
         agreeCheckBox = findViewById(R.id.agreeCheckBox);
         forgotPasswordTextView = findViewById(R.id.forgotPassword);
-
-        // 初始化WebSocket客户端
-        webClient = WebClient.getInstance();
 
         // 从注册页面接收账号
         if (getIntent().hasExtra("account")) {
@@ -71,19 +68,27 @@ public class LoginActivity extends AppCompatActivity {
                 String qqNumber = qqNumberEditText.getText().toString();
                 String qqPassword = qqPasswordEditText.getText().toString();
 
-                if (agreeCheckBox.isChecked()) { // 用户已同意协议，执行登录操作
-                    if (!qqNumber.isEmpty() && !qqPassword.isEmpty()) {
-                        // 获取用户名，等真正登录
-                        username = qqNumber;
-                        password = qqPassword;
-                        // 向"http://localhost:8080/api/login"发送登录请求
-                        startLogin(username, password);
-                    } else {
-                        // 提示用户输入账号和密码
-                        Toast.makeText(LoginActivity.this, "账号和密码不能为空", Toast.LENGTH_SHORT).show();
+                if (!qqNumber.isEmpty() && !qqPassword.isEmpty()) {
+
+                    // 验证账号和密码
+                    if (!agreeCheckBox.isChecked()) {
+                        Toast.makeText(LoginActivity.this, "请先同意用户协议", Toast.LENGTH_SHORT).show();
+                        return;
                     }
+
+                    startLogin(qqNumber,qqPassword);
+
+//                    if (userDAO.validateUser(qqNumber, qqPassword)) {
+//                        // 登录成功
+//                        Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+//                        // 这里可以添加登录成功后的操作，比如跳转到主界面
+//                    } else {
+//                        // 登录失败
+//                        Toast.makeText(LoginActivity.this, "账号或密码错误", Toast.LENGTH_SHORT).show();
+//                    }
                 } else {
-                    Toast.makeText(LoginActivity.this, "请先同意协议", Toast.LENGTH_SHORT).show();
+                    // 提示用户输入账号和密码
+                    Toast.makeText(LoginActivity.this, "请输入账号和密码", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -98,8 +103,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-
-    public void startLogin(String username, String password) {
+    public void startLogin(String username,String password){
         // 登录的逻辑
         login(username, password, new Callback() {
             @Override
@@ -109,30 +113,18 @@ public class LoginActivity extends AppCompatActivity {
                     // 登录成功
                     String token = (String) result.getData().get("token");
                     // 保存token到本地
-                    SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+                    SharedPreferences sharedPreferences = getSharedPreferences("MyRefs", MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("token", token);
-                    editor.putString("username", username); // 保存用户名
+                    editor.putString("current_username", username); // 保存用户名
 
                     editor.apply(); // 或使用 commit() 方法
 
                     // 创建 GetNowUser 实例
-                    GetNowUser getNowUser = new GetNowUser(LoginActivity.this);
+                    GetNowUser getNowUser = new GetNowUser(/* 获取当前界面 */ LoginActivity.this);
 
                     // 设置当前用户名
                     getNowUser.setCurrentUsername(username);
-
-                    WebUtil.getFriendList(username, token, new Callback() {
-                        @Override
-                        public void onResult(WebResult<Map<String, Object>> result) {
-                            if (result.getCode() == 200) {
-                                // 获取好友列表成功
-                                List<Map<String, Object>> friends = (List<Map<String, Object>>) result.getData().get("friends");
-                                // 处理好友列表数据
-                                Log.i("friends", friends.toString());
-                            }
-                        }
-                    });
 
                     // Connect to WebSocket after successful login
                     webClient.connect(token, new WebSocketListener() {
@@ -161,11 +153,11 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     // 登录失败
                     System.out.println("Error: " + result.getMessage());
+                    Toast.makeText(LoginActivity.this, "账号或者密码错误", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
-
     // Send online message to WebSocket server
     private void sendOnline(String username) {
         WebSocket webSocket = webClient.getWebSocket();
