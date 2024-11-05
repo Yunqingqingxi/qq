@@ -3,43 +3,73 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#FFFFFF"
-    tools:ignore="ExtraText">
+    android:background="#FDFDFD"
+    android:orientation="vertical">
 
     <!-- 搜索栏 -->
     <EditText
         android:id="@+id/search_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="搜索"
+        android:background="#F5F5F5"
         android:gravity="center"
+        android:hint="搜索"
         android:padding="8dp"
-        android:background="#F5F5F5" />
+        tools:ignore="TouchTargetSizeCheck" />
 
-    <!-- 新朋友按钮 -->
-    <Button
-        android:id="@+id/button_new_friend"
+    <!-- 新朋友LinearLayout -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
-        android:gravity="start"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:text="新朋友"
-        tools:ignore="TextContrastCheck" />
+        android:paddingEnd="16dp">
 
-    <!-- 群通知按钮 -->
-    <Button
-        android:id="@+id/button_group_notification"
+        <TextView
+            android:id="@+id/textview_new_friend"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="start"
+            android:textSize="20dp"
+            android:text="新朋友"
+            android:textAppearance="?android:attr/textAppearanceButton"
+            tools:ignore="TextContrastCheck" />
+
+        <ImageView
+            android:id="@+id/imageView_new_friend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/p35" />
+    </LinearLayout>
+
+    <!-- 群通知LinearLayout -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
-        android:gravity="start"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:text="群通知"
-        tools:ignore="TextContrastCheck" />
+        android:paddingEnd="16dp">
+
+        <TextView
+            android:id="@+id/textview_group_notification"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="start"
+            android:textSize="20dp"
+            android:text="群通知"
+            android:textAppearance="?android:attr/textAppearanceButton"
+            tools:ignore="TextContrastCheck" />
+
+        <ImageView
+            android:id="@+id/imageView_group_notification"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/p35" />
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
@@ -57,23 +87,74 @@
         android:layout_height="10dp"
         android:background="#FAFAFA" />
 
-    <!-- ViewPager 和 PagerTabStrip -->
+    <HorizontalScrollView
+        android:id="@+id/horizontal_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
 
+        <LinearLayout
+            android:id="@+id/linear_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp">
 
-        <androidx.viewpager.widget.ViewPager
-            android:id="@+id/view_pager"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" >
-
-            <androidx.viewpager.widget.PagerTabStrip
-                android:id="@+id/pager_tab_strip"
-                android:layout_width="match_parent"
+            <!-- TextViews -->
+            <TextView
+                android:id="@+id/textview1"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#E0E0E0"
-                android:textColor="#000000"
-                android:padding="0.2dp" />
-        </androidx.viewpager.widget.ViewPager>
+                android:padding="16dp"
+                android:text="好友" />
 
+            <TextView
+                android:id="@+id/textview2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="分组" />
 
+            <TextView
+                android:id="@+id/textview3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="群聊" />
+
+            <TextView
+                android:id="@+id/textview4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="频道" />
+
+            <TextView
+                android:id="@+id/textview5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="机器人" />
+
+            <TextView
+                android:id="@+id/textview6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="设备" />
+
+            <TextView
+                android:id="@+id/textview7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="通讯录" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <FrameLayout
+        android:id="@+id/fragment_container2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 </LinearLayout>
