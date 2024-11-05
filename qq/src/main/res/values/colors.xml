@@ -2,4 +2,8 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="blue">#FF0000FF</color>
+    <color name="gray">#F3F3F3</color>
+    <color name="normal_text_color">#000000</color>
+    <color name="clicked_text_color">#FF72AFFF</color>
 </resources>

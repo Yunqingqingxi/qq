@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid android:color="#1E90FF"/> <!-- 按钮的填充颜色 -->
-    <corners android:radius="25dp"/> <!-- 圆角的半径 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#87CEFA"/> <!-- 浅天蓝色 -->
+    <corners android:radius="8dp"/> <!-- 设置圆角半径 -->
 </shape>
