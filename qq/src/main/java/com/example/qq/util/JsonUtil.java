@@ -31,6 +31,10 @@ public class JsonUtil {
                 if (dataObject.has("token")) {
                     dataMap.put("token", dataObject.getString("token"));
                 }
+                // 将其他数据提取到 dataMap 中 , 例如data":{"friends":[{"id":20,"userId":1,"friendId":2},{"id":25,"userId":1,"friendId":123456}]}
+                if (dataObject.has("friends")) {
+                    dataMap.put("friends", dataObject.getJSONArray("friends"));
+                }
             }
 
             // 创建 WebResult 实例

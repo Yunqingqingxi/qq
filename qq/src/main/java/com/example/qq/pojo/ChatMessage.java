@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
  * ChatMessage 类，表示聊天消息的基本信息。
  */
 public class ChatMessage {
-    private final long id;                    // 消息ID（数据库自增主键）
+    private long id;                    // 消息ID（数据库自增主键）
     private final String content;             // 消息内容
     private final LocalDateTime timestamp;    // 消息时间戳
     private final String sender;              // 发送者
@@ -28,6 +28,23 @@ public class ChatMessage {
      */
     public ChatMessage(long id, String content, String timestampStr, String sender, String receiver, int avatarResId) {
         this.id = id;
+        this.content = content;
+        this.timestamp = parseTimestamp(timestampStr);
+        this.sender = sender;
+        this.receiver = receiver;
+        this.avatarResId = avatarResId;  // 初始化头像资源ID
+    }
+
+    /**
+     * ChatMessage 构造函数
+     *
+     * @param sender 发送者
+     * @param receiver 接收者
+     * @param content 消息内容
+     * @param timestampStr 时间戳（字符串格式）
+     * @param avatarResId 头像资源ID
+     */
+    public ChatMessage(String sender, String receiver ,String content, String timestampStr, int avatarResId) {
         this.content = content;
         this.timestamp = parseTimestamp(timestampStr);
         this.sender = sender;

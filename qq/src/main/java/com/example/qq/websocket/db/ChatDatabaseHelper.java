@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChatDatabaseHelper extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME = "chat.db";
+    private static final String DATABASE_NAME = "chats.db";
     private static final int DATABASE_VERSION = 2;  // 更新数据库版本
 
     // 消息表
