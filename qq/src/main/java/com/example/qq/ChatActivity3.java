@@ -60,7 +60,7 @@ public class ChatActivity3 extends BaseActivity {
         initialize(); // 初始化组件
         setupRecyclerView(); // 设置 RecyclerView
         loadMessagesFromDatabase(currentUsername); // 加载消息记录
-        setupListeners(); // 设置按钮点击事件
+        setupListeners(); // 设置按钮点击事
     }
 
     /**
