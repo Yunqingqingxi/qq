@@ -50,7 +50,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
-        holder.bind(messages.get(position));
+        holder.bind(messages.get(position), currentUser);
     }
 
     @Override
@@ -68,41 +68,41 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
      * ViewHolder 用于缓存视图组件
      */
     class MessageViewHolder extends RecyclerView.ViewHolder {
-        private final ImageView avatar;
-        private final TextView messageText;
+        private ImageView avatar;
+        private TextView messageText;
 
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
-            // 直接通过视图ID获取组件
-            avatar = itemView.findViewById(R.id.imageViewLeft); // 默认接收消息头像
-            messageText = itemView.findViewById(R.id.messageTextLeft); // 默认接收消息内容
-
-            // 根据当前 viewType 设置发送和接收的头像和消息视图
-            itemView.setOnClickListener(v -> {
-                int position = getAdapterPosition();
-                if (position != RecyclerView.NO_POSITION) {
-                    ChatMessage message = messages.get(position);
-                    Intent intent = new Intent(context, ChatActivity3.class);
-                    intent.putExtra("nickname", message.getSender());  // 传递消息发送者
-                    intent.putExtra("message", message.getContent());  // 传递消息内容
-                    context.startActivity(intent);
-                }
-            });
+            // 先不初始化 avatar 和 messageText，等到确定布局类型后再初始化
         }
 
-        public void bind(ChatMessage message) {
-            // 根据消息发送者设置头像资源
+        public void bind(ChatMessage message, String currentUser) {
+            // 根据消息的发送者来判断头像和消息内容应该显示在哪一侧
+             if (message.getSender().equals(currentUser)) {
+                // 发送者的消息，设置右侧布局
+                avatar = itemView.findViewById(R.id.imageViewRight);  // 发送者头像
+                messageText = itemView.findViewById(R.id.messageTextRight);  // 发送消息内容
+            } else {
+                // 接收者的消息，设置左侧布局
+                avatar = itemView.findViewById(R.id.imageViewLeft);  // 接收者头像
+                messageText = itemView.findViewById(R.id.messageTextLeft);  // 接收消息内容
+            }
+
+            // 设置头像和消息内容
             avatar.setImageResource(message.getAvatarResId() != 0 ? message.getAvatarResId() : R.drawable.p9);  // 默认头像
             messageText.setText(message.getContent());
 
-            // 根据发送者判断是否是发送消息，设置对应的布局视图
-            if (getItemViewType() == 0) {  // 发送的消息
-                avatar.setImageResource(message.getAvatarResId() != 0 ? message.getAvatarResId() : R.drawable.p9);
-                messageText.setText(message.getContent());
-            } else {  // 接收的消息
-                avatar.setImageResource(message.getAvatarResId() != 0 ? message.getAvatarResId() : R.drawable.p9);
-                messageText.setText(message.getContent());
-            }
+//            // 为每一项消息设置点击事件
+//            itemView.setOnClickListener(v -> {
+//                int position = getBindingAdapterPosition();
+//                if (position != RecyclerView.NO_POSITION) {
+//                    ChatMessage selectedMessage = messages.get(position);
+//                    Intent intent = new Intent(context, ChatActivity3.class);
+//                    intent.putExtra("nickname", selectedMessage.getSender());  // 传递消息发送者
+//                    intent.putExtra("message", selectedMessage.getContent());  // 传递消息内容
+//                    context.startActivity(intent);
+//                }
+//            });
         }
     }
 }

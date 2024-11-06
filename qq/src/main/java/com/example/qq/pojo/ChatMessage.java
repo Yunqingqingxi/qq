@@ -2,14 +2,16 @@ package com.example.qq.pojo;
 
 import android.annotation.SuppressLint;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 /**
  * ChatMessage 类，表示聊天消息的基本信息。
  */
 public class ChatMessage {
-    private long id;                    // 消息ID（数据库自增主键）
+    private final long id;                    // 消息ID（数据库自增主键）
     private final String content;             // 消息内容
     private final LocalDateTime timestamp;    // 消息时间戳
     private final String sender;              // 发送者
@@ -26,7 +28,7 @@ public class ChatMessage {
      * @param receiver 接收者
      * @param avatarResId 头像资源ID
      */
-    public ChatMessage(long id, String content, String timestampStr, String sender, String receiver, int avatarResId) {
+    public ChatMessage(long id, String sender, String receiver, String content, String timestampStr ,int avatarResId) {
         this.id = id;
         this.content = content;
         this.timestamp = parseTimestamp(timestampStr);
@@ -35,22 +37,22 @@ public class ChatMessage {
         this.avatarResId = avatarResId;  // 初始化头像资源ID
     }
 
-    /**
-     * ChatMessage 构造函数
-     *
-     * @param sender 发送者
-     * @param receiver 接收者
-     * @param content 消息内容
-     * @param timestampStr 时间戳（字符串格式）
-     * @param avatarResId 头像资源ID
-     */
-    public ChatMessage(String sender, String receiver ,String content, String timestampStr, int avatarResId) {
-        this.content = content;
-        this.timestamp = parseTimestamp(timestampStr);
-        this.sender = sender;
-        this.receiver = receiver;
-        this.avatarResId = avatarResId;  // 初始化头像资源ID
-    }
+//    /**
+//     * ChatMessage 构造函数
+//     *
+//     * @param sender 发送者
+//     * @param receiver 接收者
+//     * @param content 消息内容
+//     * @param timestampStr 时间戳（字符串格式）
+//     * @param avatarResId 头像资源ID
+//     */
+//    public ChatMessage(String sender, String receiver ,String content, String timestampStr, int avatarResId) {
+//        this.content = content;
+//        this.timestamp = parseTimestamp(timestampStr);
+//        this.sender = sender;
+//        this.receiver = receiver;
+//        this.avatarResId = avatarResId;  // 初始化头像资源ID
+//    }
 
     // Getter 方法
 
@@ -79,16 +81,19 @@ public class ChatMessage {
     }
 
     // Private 方法
-
     private LocalDateTime parseTimestamp(String timestampStr) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return LocalDateTime.parse(timestampStr, formatter);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        // 解析时间部分
+        LocalTime time = LocalTime.parse(timestampStr, formatter);
+        // 使用当前日期并将时间部分设置为解析的时间
+        return LocalDate.now().atTime(time);
     }
 
     private String formatTimestamp(LocalDateTime timestamp) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
         return timestamp.format(formatter);
     }
+
 
     // 方法重写
 

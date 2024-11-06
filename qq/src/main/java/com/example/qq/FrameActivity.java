@@ -116,7 +116,7 @@ public class FrameActivity extends BaseActivity {
     }
 
     private void connectWebSocket() {
-        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("MyRefs", MODE_PRIVATE);
         String token = sharedPreferences.getString("token", "");
         webClient.connect(token, webSocketListener);
         webSocket = webClient.getWebSocket();
@@ -135,7 +135,7 @@ public class FrameActivity extends BaseActivity {
 
     private void loadFriends() {
         currentUsername = getNowUser.getCurrentUsername();
-        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("MyRefs", MODE_PRIVATE);
         String token = sharedPreferences.getString("token", "");
         List<String> friendUsernames = dbHelper.getFriendsForUser(currentUsername); // 从数据库加载好友用户名列表
         for (String friendUsername : friendUsernames) {
@@ -226,8 +226,8 @@ public class FrameActivity extends BaseActivity {
             if (messageFilter.shouldProcessMessage(result)) {
                 Integer systemValue = (Integer) result.get("system");
                 switch (systemValue) {
-                    case 2: handleFriendRequest(result); break;
-                    case 3: handleFriendAdded(result); break;
+                    case 2: handleFriendRequest(result); break; // 好友请求
+                    case 3: handleFriendAdded(result); break; // 好友已添加
                     default: handleUnknownSystemValue(result); break;
                 }
             }
