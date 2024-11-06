@@ -11,7 +11,6 @@ import java.time.format.DateTimeFormatter;
  * ChatMessage 类，表示聊天消息的基本信息。
  */
 public class ChatMessage {
-    private final long id;                    // 消息ID（数据库自增主键）
     private final String content;             // 消息内容
     private final LocalDateTime timestamp;    // 消息时间戳
     private final String sender;              // 发送者
@@ -21,15 +20,13 @@ public class ChatMessage {
     /**
      * ChatMessage 构造函数
      *
-     * @param id 消息ID
      * @param content 消息内容
      * @param timestampStr 时间戳（字符串格式）
      * @param sender 发送者
      * @param receiver 接收者
      * @param avatarResId 头像资源ID
      */
-    public ChatMessage(long id, String sender, String receiver, String content, String timestampStr ,int avatarResId) {
-        this.id = id;
+    public ChatMessage( String sender, String receiver, String content, String timestampStr ,int avatarResId) {
         this.content = content;
         this.timestamp = parseTimestamp(timestampStr);
         this.sender = sender;
@@ -55,10 +52,6 @@ public class ChatMessage {
 //    }
 
     // Getter 方法
-
-    public long getId() {
-        return id;
-    }
 
     public String getContent() {
         return content;
@@ -100,7 +93,7 @@ public class ChatMessage {
     @SuppressLint("DefaultLocale")
     @Override
     public String toString() {
-        return String.format("ChatMessage[id=%d, content=%s, time=%s, sender=%s, receiver=%s, avatarResId=%d]",
-                id, content, getFormattedTime(), sender, receiver, avatarResId);
+        return String.format("ChatMessage[ content=%s, time=%s, sender=%s, receiver=%s, avatarResId=%d]",
+               content, getFormattedTime(), sender, receiver, avatarResId);
     }
 }

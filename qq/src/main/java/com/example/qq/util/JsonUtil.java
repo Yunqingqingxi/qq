@@ -3,6 +3,8 @@ package com.example.qq.util;
 import android.util.Log;
 
 import com.example.qq.websocket.webResult.WebResult;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -75,6 +77,12 @@ public class JsonUtil {
             Log.e("JsonParser", "Failed to parse message: " + json, e);
             return null; // 如果解析失败，返回 null
         }
+    }
+    // 解析 JSON 字符串并返回 Map
+    public Map<String, Object> parseToMap(String jsonString) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        // 使用 ObjectMapper 将 JSON 字符串转换为 Map
+        return objectMapper.readValue(jsonString, Map.class);
     }
 
     public WebResult<Map<String, Object>> getWebResult() {
