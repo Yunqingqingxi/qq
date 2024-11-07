@@ -3,6 +3,7 @@
 //import static com.example.qq.websocket.webUtils.controller.WebUtil.login;
 //import static com.example.qq.websocket.webUtils.controller.WebUtil.register;
 //
+//import android.annotation.SuppressLint;
 //import android.content.Intent;
 //import android.os.Bundle;
 //import android.util.Log;
@@ -13,9 +14,10 @@
 //import android.widget.Toast;
 //
 //import androidx.annotation.NonNull;
-//
+//import androidx.appcompat.app.AppCompatActivity;
 //import android.content.SharedPreferences;
 //
+//import com.example.qq.websocket.db.FriendDatabaseHelper;
 //import com.example.qq.websocket.domain.Message;
 //import com.example.qq.websocket.web.WebClient;
 //import com.example.qq.websocket.webResult.WebResult;

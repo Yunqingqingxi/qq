@@ -5,14 +5,19 @@ import static com.example.qq.websocket.webUtils.controller.WebUtil.acceptFriend;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.getFriendList;
 
 import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,7 +27,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.qq.adapter.FriendAdapter;
-
+import com.example.qq.fragment.ContactFragment;
+import com.example.qq.fragment.DynamicFragment;
+import com.example.qq.fragment.MessageFragment;
 import com.example.qq.websocket.db.FriendDatabaseHelper;
 import com.example.qq.pojo.Friend;
 import com.example.qq.websocket.domain.Message;
@@ -32,6 +39,7 @@ import com.example.qq.websocket.webUtils.AddFriendUtil;
 import com.example.qq.websocket.webUtils.GetNowUser;
 import com.example.qq.websocket.webUtils.controller.Callback;
 import com.example.qq.websocket.webUtils.controller.MessageFilter;
+import com.example.qq.websocket.webUtils.controller.WebUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,6 +50,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.net.ssl.SSLContext;
 
 import okhttp3.Response;
 import okhttp3.WebSocket;
@@ -73,16 +84,42 @@ public class FrameActivity extends BaseActivity {
         initializeUI();
         initializeDatabase();
         loadFriends();
-
-        // 动态添加FriendFragment
-//        if (savedInstanceState == null) {
-//            FriendFragment friendFragment = new FriendFragment();
-//            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//            transaction.replace(R.id.fragment_container, friendFragment);
-//            transaction.commit();
-//        }
         setupRecyclerView();
+
+        setupBottomNavigation();
     }
+
+    private void setupBottomNavigation() {
+        ImageView imageViewMessage = findViewById(R.id.imageViewMessage);
+        ImageView imageViewContact = findViewById(R.id.imageViewContact);
+        ImageView imageViewDynamic = findViewById(R.id.imageViewDynamic);
+
+        imageViewMessage.setOnClickListener(this::onMessageClick);
+        imageViewContact.setOnClickListener(this::onContactClick);
+        imageViewDynamic.setOnClickListener(this::onDynamicClick);
+    }
+
+    private void onMessageClick(View view) {
+        MessageFragment messageFragment = new MessageFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, messageFragment)
+                .commit();
+    }
+
+    private void onContactClick(View view) {
+        ContactFragment contactFragment = new ContactFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, contactFragment)
+                .commit();
+    }
+
+    private void onDynamicClick(View view) {
+        DynamicFragment dynamicFragment = new DynamicFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, dynamicFragment)
+                .commit();
+    }
+
 
 
     private void initializeWebSocketClient() {
@@ -94,6 +131,8 @@ public class FrameActivity extends BaseActivity {
         setupWebSocketListener();
         connectWebSocket();
     }
+
+
 
     private void setupWebSocketListener() {
         webSocketListener = new WebSocketListener() {
@@ -112,6 +151,8 @@ public class FrameActivity extends BaseActivity {
                 t.printStackTrace();
             }
 
+
+
             @Override
             public void onClosing(@NonNull WebSocket webSocket, int code, String reason) {
                 System.out.println("WebSocket closed: " + reason);
@@ -127,8 +168,11 @@ public class FrameActivity extends BaseActivity {
     }
 
     private void initializeUI() {
-        imageViewPlus = findViewById(R.id.imageViewPlus);
-        friendRecyclerView = findViewById(R.id.friendRecyclerView);
+        LayoutInflater factory = LayoutInflater.from(FrameActivity.this);
+        View layout = factory.inflate(R.layout.fragment_message, null);
+        friendRecyclerView = (RecyclerView) layout.findViewById(R.id.friendRecyclerView);
+
+        imageViewPlus = (ImageView) layout.findViewById(R.id.imageViewPlus);
         friendRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         imageViewPlus.setOnClickListener(this::showPopupMenu);
     }
@@ -355,4 +399,7 @@ public class FrameActivity extends BaseActivity {
             webSocket.close(1000, "Activity destroyed");
         }
     }
+
+
+
 }
