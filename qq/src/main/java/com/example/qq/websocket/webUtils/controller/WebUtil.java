@@ -75,9 +75,9 @@ public class WebUtil {
         }
     }
 
-    public static void register(String username, String password, Callback callback) {
+    public static void register(String nickname,String username, String password, Callback callback) {
         executorService.execute(() -> {
-            WebResult<Map<String, Object>> result = performRegister(username, password);
+            WebResult<Map<String, Object>> result = performRegister(nickname,username, password);
             // 切换到主线程处理结果
             new Handler(Looper.getMainLooper()).post(() -> {
                 if (callback != null) {
@@ -91,9 +91,9 @@ public class WebUtil {
         });
     }
 
-    public static WebResult<Map<String, Object>> performRegister(String username, String password) {
+    public static WebResult<Map<String, Object>> performRegister(String nickname,String username, String password) {
          urlString = url+"/register";
-        String jsonInputString = String.format("{\"username\":\"%s\", \"password\":\"%s\"}", username, password);
+        String jsonInputString = String.format("{\"nickname\":\"%s\",\"username\":\"%s\", \"password\":\"%s\"}", nickname, username, password);
         System.out.println("Json: " + jsonInputString);
 
         // 调用封装的 postConnect 方法
@@ -133,6 +133,8 @@ public class WebUtil {
                 }
             });
         });
+
+
     }
 
     private static WebResult<Map<String, Object>> performAcceptFriend(String requester, String target, String token) {
@@ -254,5 +256,112 @@ public class WebUtil {
             return WebResult.error(null); // 处理解析异常
         }
     }
+    // 存储聊天信息
+public static void saveChatInfo(String token, String sender, String receiver, String message,int avatar , Callback callback) {
+    executorService.execute(() -> {
+        WebResult<Map<String, Object>> result = performSaveChatInfo(token, sender, receiver, message,avatar);
+        // 切换到主线程处理结果
+        new Handler(Looper.getMainLooper()).post(() -> {
+            if (callback != null) {
+                try {
+                    callback.onResult(result);
+                }catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    });
+    }
+    private static WebResult<Map<String, Object>> performSaveChatInfo(String token, String sender, String receiver, String message,int avatar) {
+        // 使用 String.format 代替字符串拼接
+        String urlString = String.format("%s/addmessage", url);
+        // 将数据封装为json
+        String jsonInputString = "{\"sender\":\"" + sender + "\",\"receiver\":\"" + receiver + "\",\"content\":\"" + message + "\",\"avatar\":\"" + avatar + "\"}";
 
+
+        // 调用封装的 postConnect 方法
+        String response = Connect.postConnect(urlString, jsonInputString ,token);
+        System.out.println("Response: " + response);
+
+        // 处理响应结果
+        WebResult<Map<String, Object>> result;
+        try {
+            // 创建 JsonParser 实例解析响应
+            JsonUtil parser = new JsonUtil(response);
+            result = parser.getWebResult();
+            // 从data中获取friends列表
+            if (result.getCode() == 0) {
+                result = WebResult.success(null);
+                result.setCode(200);
+                result.setMessage("保存聊天信息成功");
+                result.setData(null);
+                return result;  // 返回成功的WebResult
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return WebResult.error(null); // 处理解析异常
+    }
+    // 获取聊天信息
+    public static void getChatInfo(String token, String sender, String receiver, Callback callback) {
+        executorService.execute(() -> {
+            WebResult<Map<String, Object>> result = performGetChatInfo(token, sender, receiver);
+            // 切换到主线程处理结果
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (callback != null) {
+                    try {
+                        callback.onResult(result);
+                    }catch (Exception e){
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+        });
+    }
+    private static WebResult<Map<String, Object>> performGetChatInfo(String token, String sender, String receiver) {
+        // 使用 String.format 代替字符串拼接
+        String urlString = String.format("%s/getmessage/%s/%s", url, sender, receiver);
+
+        // 调用封装的 getConnect 方法
+        String response = Connect.getConnect(urlString, token);
+        System.out.println("Response: " + response);
+
+        // 处理响应结果
+        WebResult<Map<String, Object>> result;
+
+        try {
+            // 直接解析JSON响应，获取data部分
+            JsonUtil parser = new JsonUtil(response);
+            Map<String, Object> responseData = parser.parseToMap(response);
+
+            // 获取"data"部分，提取出messages
+            Map<String, Object> data = (Map<String, Object>) responseData.get("data");
+            Map<String, Object> messages = (Map<String, Object>) data.get("messages");
+
+            if (messages != null) {
+                // 提取发送者的消息列表
+                List<Map<String, Object>> senderMessages = (List<Map<String, Object>>) messages.get(sender);
+
+                // 提取接收者的消息列表
+                List<Map<String, Object>> receiverMessages = (List<Map<String, Object>>) messages.get(receiver);
+
+                // 保存消息列表
+                data.put("senderMessages", senderMessages);  // 保存发送者的消息列表
+                data.put("receiverMessages", receiverMessages);  // 保存接收者的消息列表
+            }
+
+            // 返回成功的WebResult
+            result = WebResult.success(null);
+            result.setCode(200);
+            result.setMessage("获取聊天信息成功");
+
+            // 将更新后的data设置回WebResult
+            result.setData(data);
+
+            return result;  // 返回成功的WebResult
+        } catch (Exception e) {
+            e.printStackTrace();
+            return WebResult.error(null);  // 处理解析异常
+        }
+    }
 }

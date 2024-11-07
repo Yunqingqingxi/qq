@@ -2,6 +2,7 @@ package com.example.qq;
 
 import static com.example.qq.util.JsonUtil.parseMessage;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.acceptFriend;
+import static com.example.qq.websocket.webUtils.controller.WebUtil.getFriendList;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
@@ -64,6 +65,7 @@ public class FrameActivity extends BaseActivity {
     private MessageFilter messageFilter;
     private ImageView imageViewPlus;
     private RecyclerView friendRecyclerView;
+    private String token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,8 +118,8 @@ public class FrameActivity extends BaseActivity {
     }
 
     private void connectWebSocket() {
-        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-        String token = sharedPreferences.getString("token", "");
+        SharedPreferences sharedPreferences = getSharedPreferences("MyRefs", MODE_PRIVATE);
+        token = sharedPreferences.getString("token", "");
         webClient.connect(token, webSocketListener);
         webSocket = webClient.getWebSocket();
     }
@@ -135,82 +137,54 @@ public class FrameActivity extends BaseActivity {
 
     private void loadFriends() {
         currentUsername = getNowUser.getCurrentUsername();
-        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-        String token = sharedPreferences.getString("token", "");
-        List<String> friendUsernames = dbHelper.getFriendsForUser(currentUsername); // 从数据库加载好友用户名列表
-        for (String friendUsername : friendUsernames) {
-            Friend friend = new Friend();
-            friend.setUsername(friendUsername);
-            // 假设我们有一个方法来获取昵称，这里我们暂时使用用户名作为昵称
-            friend.setNickname(friendUsername);
-            friends.add(friend);
-        }
+        SharedPreferences sharedPreferences = getSharedPreferences("MyRefs", MODE_PRIVATE);
+        token = sharedPreferences.getString("token", "");
 
-        WebUtil.getFriendList(token, currentUsername, new Callback() {
+//        // 从数据库加载好友列表
+//        List<String> friendUsernames = dbHelper.getFriendsForUser(currentUsername);
+//        for (String friendUsername : friendUsernames) {
+//            Friend friend = new Friend();
+//            friend.setUsername(friendUsername);
+//            friend.setNickname(friendUsername);  // 假设昵称与用户名相同
+//            friends.add(friend);
+//        }
+
+        // 从网络加载好友列表
+        fetchFriendListFromServer();
+    }
+
+    private void fetchFriendListFromServer() {
+        getFriendList(token, currentUsername, new Callback() {
             @Override
             public void onResult(WebResult<Map<String, Object>> result) throws JSONException {
                 if (result.getCode() == 200) {
                     Map<String, Object> data = result.getData();
-                    // 获取好友列表成功
-                    System.out.println("Result: " + result.getData());
-
-                    // 假设你已经有data对象
                     Object friendsObj = data.get("friends");
 
                     if (friendsObj instanceof JSONArray) {
-                        // 如果 friends 是 JSONArray 类型，先转换成 List<Map<String, Object>>
                         JSONArray friendsArray = (JSONArray) friendsObj;
-                        List<Map<String, Object>> friendtemp = new ArrayList<>();
+                        List<Map<String, Object>> friendDataList = new ArrayList<>();
 
-                        // 将 JSONArray 中的每一项转换为 Map
+                        // 将 JSONArray 转换为 List<Map<String, Object>> 以便后续处理
                         for (int i = 0; i < friendsArray.length(); i++) {
                             JSONObject friendJson = friendsArray.getJSONObject(i);
                             Map<String, Object> friendMap = new HashMap<>();
-
-                            // 将每个 JSON 对象转换为 Map
                             Iterator<String> keys = friendJson.keys();
                             while (keys.hasNext()) {
                                 String key = keys.next();
                                 friendMap.put(key, friendJson.get(key));
                             }
-                            friendtemp.add(friendMap);
-                        }
-                        // 处理好友列表数据
-                        Log.i("friends", friendtemp.toString());
-
-                        List<String> friendIds = new ArrayList<>();
-                        for (Map<String, Object> friend : friendtemp) {
-                            Object friendId = friend.get("friendId");
-                            if (friendId != null) {
-                                friendIds.add(String.valueOf(friendId));
-                            }
+                            friendDataList.add(friendMap);
                         }
 
-                        // 从数据库加载好友用户名列表
-                        List<String> friendUsernames = dbHelper.getFriendsForUser(currentUsername);
-
-                        // 处理从网络请求中获取到的好友数据
-                        for (String friendId : friendIds) {
-                            Friend friend = new Friend();
-                            friend.setUsername(friendId);  // 假设 friendId 可以作为用户名
-                            friend.setNickname(friendId);  // 假设昵称与用户名相同
-                            friends.add(friend);
-                        }
-
-                        // 处理从数据库加载的好友数据
-                        for (String friendUsername : friendUsernames) {
-                            Friend friend = new Friend();
-                            friend.setUsername(friendUsername);
-                            friend.setNickname(friendUsername);  // 假设昵称与用户名相同
-                            friends.add(friend);
-                        }
-
+                        // 从网络数据更新好友列表
+                        updateFriendListWithNetworkData(friendDataList);
                     }
                 }
             }
         });
-
     }
+
 
     private void setupRecyclerView() {
         friendAdapter = new FriendAdapter(FrameActivity.this, friends);
@@ -226,8 +200,8 @@ public class FrameActivity extends BaseActivity {
             if (messageFilter.shouldProcessMessage(result)) {
                 Integer systemValue = (Integer) result.get("system");
                 switch (systemValue) {
-                    case 2: handleFriendRequest(result); break;
-                    case 3: handleFriendAdded(result); break;
+                    case 2: handleFriendRequest(result); break; // 好友请求
+                    case 3: handleFriendAdded(result); break; // 好友已添加
                     default: handleUnknownSystemValue(result); break;
                 }
             }
@@ -256,14 +230,20 @@ public class FrameActivity extends BaseActivity {
     }
 
     private void handleFriendAdded(Map<String, Object> result) {
-        String user = (String) result.get("user");
+        String user = (String) result.get("user");  // 目标好友的用户名
         String message = (String) result.get("message");
         runOnUiThread(() -> {
-            showToast(message);
-            dbHelper.addFriend(currentUsername, user); // 添加好友到数据库
-            updateFriendList();
+            showToast(message);  // 显示添加成功的消息
+
+            // 更新数据库，双向添加好友
+//            dbHelper.addFriend(currentUsername, user);  // 将目标好友添加到发起者的好友列表中
+//            dbHelper.addFriend(user, currentUsername);  // 将发起者添加到目标好友的好友列表中
+
+            // 更新好友列表显示
+            fetchFriendListFromServer();
         });
     }
+
 
     private void handleUnknownSystemValue(Map<String, Object> result) {
         String message = (String) result.get("message");
@@ -271,31 +251,44 @@ public class FrameActivity extends BaseActivity {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private void updateFriendList() {
-        friends.clear(); // 清空当前好友列表
-        List<String> friendUsernames = dbHelper.getFriendsForUser(currentUsername); // 从数据库加载好友用户名列表
-        for (String friendUsername : friendUsernames) {
+    private void updateFriendListWithNetworkData(List<Map<String, Object>> friendDataList) {
+        friends.clear();
+        // 处理从网络请求中获取到的好友数据
+        List<String> friendIds = new ArrayList<>();
+        for (Map<String, Object> friend : friendDataList) {
+            Object friendId = friend.get("friendId");
+            if (friendId != null) {
+                friendIds.add(String.valueOf(friendId));
+            }
+        }
+
+        // 更新好友列表
+        for (String friendId : friendIds) {
             Friend friend = new Friend();
-            friend.setUsername(friendUsername);
-            // 假设我们有一个方法来获取昵称，这里我们暂时使用用户名作为昵称
-            friend.setNickname(friendUsername);
-            // 如果有头像信息，也可以在这里设置
-            // friend.setAvatar(...);
+            friend.setUsername(friendId);  // 假设 friendId 可以作为用户名
+            friend.setNickname(friendId);  // 假设昵称与用户名相同
             friends.add(friend);
         }
-        friendAdapter.notifyDataSetChanged(); // 通知适配器数据已更改
+
+        // 通知适配器更新数据
+        friendAdapter.notifyDataSetChanged();
     }
     private void acceptFriendRequest(String username) {
-        String token = getSharedPreferences("MyPrefs", MODE_PRIVATE).getString("token", "");
+        String token = getSharedPreferences("MyRefs", MODE_PRIVATE).getString("token", "");
         notifySender(currentUsername, username, token);
         acceptFriend(currentUsername, username, token, new Callback() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onResult(WebResult<Map<String, Object>> result) {
                 if (result.getCode() == 200) {
                     runOnUiThread(() -> {
                         showToast("好友请求已接受");
-                        dbHelper.addFriend(currentUsername,username); // 添加好友到数据库
-                        updateFriendList();
+                        // 刷新好友列表
+                        fetchFriendListFromServer();  // 重新加载好友列表
+
+//                        // 如果有必要，也可以直接手动刷新数据
+//                        friendAdapter.notifyDataSetChanged(); // 通知适配器更新
+                        System.out.println("Succee");
                     });
                 }
             }

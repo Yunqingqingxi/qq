@@ -84,7 +84,7 @@ public class ChatDatabaseHelper extends SQLiteOpenHelper {
                 @SuppressLint("Range") String receiver = cursor.getString(cursor.getColumnIndex(COLUMN_MESSAGE_RECEIVER));
                 @SuppressLint("Range") int avatarResId = cursor.getInt(cursor.getColumnIndex(COLUMN_MESSAGE_AVATAR)); // 获取头像资源ID
 
-                ChatMessage message = new ChatMessage(id, content, timestamp, sender, receiver, avatarResId);  // 传递头像资源ID
+                ChatMessage message = new ChatMessage( content, timestamp, sender, receiver, avatarResId);  // 传递头像资源ID
                 messages.add(message);
             }
             cursor.close();
