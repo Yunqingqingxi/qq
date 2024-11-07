@@ -75,9 +75,9 @@ public class WebUtil {
         }
     }
 
-    public static void register(String username, String password, Callback callback) {
+    public static void register(String nickname,String username, String password, Callback callback) {
         executorService.execute(() -> {
-            WebResult<Map<String, Object>> result = performRegister(username, password);
+            WebResult<Map<String, Object>> result = performRegister(nickname,username, password);
             // 切换到主线程处理结果
             new Handler(Looper.getMainLooper()).post(() -> {
                 if (callback != null) {
@@ -91,9 +91,9 @@ public class WebUtil {
         });
     }
 
-    public static WebResult<Map<String, Object>> performRegister(String username, String password) {
+    public static WebResult<Map<String, Object>> performRegister(String nickname,String username, String password) {
          urlString = url+"/register";
-        String jsonInputString = String.format("{\"username\":\"%s\", \"password\":\"%s\"}", username, password);
+        String jsonInputString = String.format("{\"nickname\":\"%s\",\"username\":\"%s\", \"password\":\"%s\"}", nickname, username, password);
         System.out.println("Json: " + jsonInputString);
 
         // 调用封装的 postConnect 方法
