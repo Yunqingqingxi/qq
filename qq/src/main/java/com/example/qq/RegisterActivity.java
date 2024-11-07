@@ -1,5 +1,7 @@
 package com.example.qq;
 
+import static com.example.qq.websocket.webUtils.controller.WebUtil.register;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -10,7 +12,12 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.qq.DAO.UserDAO;
+import com.example.qq.websocket.webResult.WebResult;
+import com.example.qq.websocket.webUtils.controller.Callback;
 
+import org.json.JSONException;
+
+import java.util.Map;
 import java.util.Random;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -45,21 +52,28 @@ public class RegisterActivity extends AppCompatActivity {
                         String account = String.format("%09d", new Random().nextInt(900000000) + 100000000);
 
                         // 调用UserDAO的addUser方法将用户信息存入数据库
-                        long result = userDAO.addUser(account, qqNumber, qqPassword);
-                        if (result != -1) {
-                            // 注册成功，传递账号到LoginActivity
-                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                            intent.putExtra("account", account); // 将账号作为额外数据传递
-                            startActivity(intent);
-                            finish(); // 关闭当前活动
-                        } else {
-                            // 注册失败
-                        }
-                    } else {
-                        // 提示用户输入昵称和密码
+//                        long result = userDAO.addUser(account, qqNumber, qqPassword);
+
+                        register(qqNumber,account, qqPassword, new Callback() {
+                            @Override
+                            public void onResult(WebResult<Map<String, Object>> result) throws JSONException {
+                                if (result.getCode() == 200) {
+                                    // 注册成功，传递账号到LoginActivity
+                                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                    intent.putExtra("account", account);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            }
+                        });
+
+//                        if (result != -1) {
+//                            // 注册成功，传递账号到LoginActivity
+//                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+//                            intent.putExtra("account", account); // 将账号作为额外数据传递
+//                            startActivity(intent);
+//                            finish(); // 关闭当前活动
                     }
-                } else {
-                    // 提示用户同意服务条款
                 }
             }
         });

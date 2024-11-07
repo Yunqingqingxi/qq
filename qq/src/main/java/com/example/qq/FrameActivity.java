@@ -5,12 +5,9 @@ import static com.example.qq.websocket.webUtils.controller.WebUtil.acceptFriend;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.getFriendList;
 
 import android.annotation.SuppressLint;
-import android.content.ContentValues;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
@@ -25,6 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.qq.adapter.FriendAdapter;
+
 import com.example.qq.websocket.db.FriendDatabaseHelper;
 import com.example.qq.pojo.Friend;
 import com.example.qq.websocket.domain.Message;
@@ -34,7 +32,6 @@ import com.example.qq.websocket.webUtils.AddFriendUtil;
 import com.example.qq.websocket.webUtils.GetNowUser;
 import com.example.qq.websocket.webUtils.controller.Callback;
 import com.example.qq.websocket.webUtils.controller.MessageFilter;
-import com.example.qq.websocket.webUtils.controller.WebUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,9 +42,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.net.ssl.SSLContext;
 
 import okhttp3.Response;
 import okhttp3.WebSocket;
@@ -79,6 +73,14 @@ public class FrameActivity extends BaseActivity {
         initializeUI();
         initializeDatabase();
         loadFriends();
+
+        // 动态添加FriendFragment
+//        if (savedInstanceState == null) {
+//            FriendFragment friendFragment = new FriendFragment();
+//            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+//            transaction.replace(R.id.fragment_container, friendFragment);
+//            transaction.commit();
+//        }
         setupRecyclerView();
     }
 

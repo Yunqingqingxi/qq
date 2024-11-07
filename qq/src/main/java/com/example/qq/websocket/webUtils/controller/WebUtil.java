@@ -10,7 +10,6 @@ import com.example.qq.websocket.webUtils.Connect;
 
 import org.json.JSONException;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
