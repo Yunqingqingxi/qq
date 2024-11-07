@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -25,6 +24,7 @@ import java.util.List;
  * 好友列表适配器，用于显示好友信息的 RecyclerView
  */
 public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendViewHolder> {
+
     private List<Friend> friendList;  // 好友列表
     private Context context;  // 上下文
 
@@ -66,9 +66,23 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
      */
     @SuppressLint("NotifyDataSetChanged")
     public void updateFriendList(List<Friend> newFriendList) {
-        this.friendList.clear();  // 清空旧数据
-        this.friendList.addAll(newFriendList);  // 添加新数据
-        notifyDataSetChanged();  // 通知适配器更新视图
+        if (newFriendList != null) {
+            this.friendList.clear();  // 清空旧数据
+            this.friendList.addAll(newFriendList);  // 添加新数据
+            notifyDataSetChanged();  // 通知适配器更新视图
+        }
+    }
+
+    /**
+     * 向好友列表中添加一个新的好友
+     *
+     * @param friend 新添加的好友
+     */
+    public void addFriend(Friend friend) {
+        if (!friendList.contains(friend)) {
+            friendList.add(friend);
+            notifyItemInserted(friendList.size() - 1);  // 通知插入了新项
+        }
     }
 
     /**

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--  test.xml  -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:layout_height="match_parent" >
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topBar"
@@ -55,81 +56,57 @@
             app:layout_constraintStart_toEndOf="@id/imageViewAvatar" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <EditText
-        android:id="@+id/searchBox"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="搜索"
-        android:textSize="14sp"
-        android:textColor="#999999"
-        app:layout_constraintTop_toBottomOf="@id/textViewNickname"
-        app:layout_constraintStart_toEndOf="parent"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        tools:ignore="NotSibling" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/friendRecyclerView"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="10dp"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
-        app:layout_constraintTop_toBottomOf="@+id/topBar"
-        app:layout_constraintVertical_bias="0.0"
-        tools:layout_editor_absoluteX="0dp" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/bottomNavigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#EEEDF2"
-        app:layout_constraintBottom_toBottomOf="parent">
+        <!-- 用于显示 Fragment 的 FrameLayout -->
+        <FrameLayout
+            android:id="@+id/fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-        <ImageView
-            android:id="@+id/imageViewMessage"
-            android:layout_width="70dp"
-            android:layout_height="40dp"
-            android:src="@drawable/p2"
-            android:layout_margin="10dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+        <!-- 底部三个 ImageView，均分宽度和高度 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="92dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:padding="8dp">
 
-        <ImageView
-            android:id="@+id/imageViewChannel"
-            android:layout_width="70dp"
-            android:layout_height="40dp"
-            android:src="@drawable/p3"
-            android:layout_margin="10dp"
-            app:layout_constraintStart_toEndOf="@id/imageViewMessage"
-            app:layout_constraintTop_toTopOf="parent"/>
+            <ImageButton
+                android:id="@+id/btnMsg"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:src="@drawable/p1"
+                android:layout_margin="8dp"
+                android:contentDescription="Image 1"
+                android:scaleType="centerInside" />
 
-        <ImageView
-            android:id="@+id/imageViewVideo"
-            android:layout_width="70dp"
-            android:layout_height="40dp"
-            android:src="@drawable/p4"
-            android:layout_margin="10dp"
-            app:layout_constraintStart_toEndOf="@id/imageViewChannel"
-            app:layout_constraintTop_toTopOf="parent"/>
+            <ImageButton
+                android:id="@+id/btnFri"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:src="@drawable/p10"
+                android:layout_margin="8dp"
+                android:contentDescription="Image 2"
+                android:scaleType="centerInside" />
 
-        <ImageView
-            android:id="@+id/imageViewContact"
-            android:layout_width="70dp"
-            android:layout_height="40dp"
-            android:src="@drawable/p5"
-            android:layout_margin="10dp"
-            app:layout_constraintStart_toEndOf="@id/imageViewVideo"
-            app:layout_constraintTop_toTopOf="parent"/>
+            <ImageButton
+                android:id="@+id/btnAut"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:src="@drawable/p8"
+                android:layout_margin="8dp"
+                android:contentDescription="Image 3"
+                android:scaleType="centerInside" />
+        </LinearLayout>
 
-        <ImageView
-            android:id="@+id/imageViewDynamic"
-            android:layout_width="70dp"
-            android:layout_height="40dp"
-            android:src="@drawable/p6"
-            android:layout_margin="10dp"
-            app:layout_constraintStart_toEndOf="@id/imageViewContact"
-            app:layout_constraintTop_toTopOf="parent"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

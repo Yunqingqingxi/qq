@@ -16,7 +16,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.qq.DAO.UserDAO;
 import com.example.qq.websocket.domain.Message;
 import com.example.qq.websocket.web.WebClient;
 import com.example.qq.websocket.webResult.WebResult;
@@ -37,7 +36,6 @@ public class LoginActivity extends AppCompatActivity {
     private ImageView loginButton;
     private CheckBox agreeCheckBox;
     private TextView forgotPasswordTextView;
-    private UserDAO userDAO;
     private WebClient webClient;
 
     @Override
@@ -47,8 +45,6 @@ public class LoginActivity extends AppCompatActivity {
 
         // 初始化WebSocket客户端
         webClient = WebClient.getInstance();
-
-        userDAO = new UserDAO(this);
 
         qqNumberEditText = findViewById(R.id.qqNumber);
         qqPasswordEditText = findViewById(R.id.qqPassword);

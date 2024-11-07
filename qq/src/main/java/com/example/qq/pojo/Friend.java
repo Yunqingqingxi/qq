@@ -77,4 +77,15 @@ public class Friend {
     public Date getTime() {
         return time;
     }
+
+    @Override
+    public String toString() {
+        return "Friend{" +
+                "avatar=" + avatar +
+                ", username='" + username + '\'' +
+                ", nickname='" + nickname + '\'' +
+                ", message='" + message + '\'' +
+                ", time=" + time +
+                '}';
+    }
 }

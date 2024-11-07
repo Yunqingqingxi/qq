@@ -8,7 +8,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.As003"
-        tools:targetApi="31">
+        >
         <service
             android:name="com.example.qq.websocket.webUtils.controller.WebUtil"
             android:enabled="true"
