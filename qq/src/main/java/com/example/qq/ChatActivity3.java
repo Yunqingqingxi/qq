@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -37,6 +38,8 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -196,29 +199,17 @@ public class ChatActivity3 extends BaseActivity {
                 if (result.getCode() == 200) {
                     // 获取返回的数据
                     Map<String, Object> data = result.getData();
-                    if (data != null && data.containsKey("messages")) {
-                        // 获取消息列表
-                        Object messagesObj = data.get("messages");
+                    if (data != null) {
+                        // 获取发送者和接收者的消息列表，可能没有消息
+                        List<Map<String, Object>> senderMessages = (List<Map<String, Object>>) data.get("senderMessages");
+                        List<Map<String, Object>> receiverMessages = (List<Map<String, Object>>) data.get("receiverMessages");
 
-                        // 检查 messagesObj 是否为空
-                        if (messagesObj == null) {
-                            // 如果 messages 为空，直接处理为空列表
-                            Log.d("ChatActivity", "No messages available");
-                            messageList.clear();  // 清空现有消息
-                            messageAdapter.notifyDataSetChanged();  // 通知适配器更新界面
-                            return;  // 直接返回，避免进一步处理
-                        }
+                        // 清空现有的消息列表，防止重复添加
+                        messageList.clear();
 
-                        // 检查是否是一个 List 类型
-                        if (messagesObj instanceof List) {
-                            // 处理 List 类型的数据
-                            List<Map<String, Object>> messageListFromServer = (List<Map<String, Object>>) messagesObj;
-
-                            // 清空现有的消息列表，防止重复添加
-                            messageList.clear();
-
-                            // 遍历每条消息并创建 ChatMessage 对象
-                            for (Map<String, Object> messageData : messageListFromServer) {
+                        // 处理发送者的消息（如果有的话）
+                        if (senderMessages != null) {
+                            for (Map<String, Object> messageData : senderMessages) {
                                 String sender = (String) messageData.get("sender");
                                 String receiver = (String) messageData.get("receiver");
                                 String content = (String) messageData.get("content");
@@ -231,12 +222,36 @@ public class ChatActivity3 extends BaseActivity {
                                 // 创建 ChatMessage 对象并添加到消息列表
                                 messageList.add(new ChatMessage(sender, receiver, content, formattedTime, avatarResId));
                             }
-
-                            // 通知适配器更新界面
-                            messageAdapter.notifyDataSetChanged();
-                        } else {
-                            Log.e("ChatActivity", "Invalid messages format: expected a List, got " + messagesObj.getClass().getName());
                         }
+
+                        // 处理接收者的消息（如果有的话）
+                        if (receiverMessages != null) {
+                            for (Map<String, Object> messageData : receiverMessages) {
+                                String sender = (String) messageData.get("sender");
+                                String receiver = (String) messageData.get("receiver");
+                                String content = (String) messageData.get("content");
+                                String timestamp = (String) messageData.get("timestamp");
+                                int avatarResId = getAvatarResourceId(receiver);  // 根据接收者获取头像资源ID
+
+                                // 格式化时间戳为需要的格式
+                                String formattedTime = formatTimestamp(timestamp);  // 你可以定义这个方法来格式化时间
+
+                                // 创建 ChatMessage 对象并添加到消息列表
+                                messageList.add(new ChatMessage(sender, receiver, content, formattedTime, avatarResId));
+                            }
+                        }
+
+                        // 按照时间戳进行排序（升序），确保从最早的消息开始
+                        Collections.sort(messageList, new Comparator<ChatMessage>() {
+                            @Override
+                            public int compare(ChatMessage o1, ChatMessage o2) {
+                                // 假设 timestamp 是 ISO 8601 格式的字符串，直接进行比较
+                                return o1.getFormattedTime().compareTo(o2.getFormattedTime());
+                            }
+                        });
+
+                        // 通知适配器更新界面
+                        messageAdapter.notifyDataSetChanged();
                     }
                 } else {
                     // 处理查询失败的情况
@@ -245,6 +260,7 @@ public class ChatActivity3 extends BaseActivity {
             }
         });
     }
+
 
     // 格式化时间戳
     private String formatTimestamp(String timestamp) {
@@ -277,46 +293,54 @@ public class ChatActivity3 extends BaseActivity {
     private void sendMessage() {
         String messageContent = inputMessage.getText().toString().trim();
         if (!messageContent.isEmpty()) {
+            // 检查发送者和接收者是否有效
+            if (currentUsername == null || currentUsername.isEmpty() || friendId == null || friendId.isEmpty()) {
+                Log.e("ChatActivity3", "Invalid sender or receiver information.");
+                return;
+            }
 
-            // 双向添加
-//            insertMessageToDatabase(friendId, currentUsername, messageContent); // 当前用户向好友发送
-//            insertMessageToDatabase(currentUsername, friendId, messageContent); // 好友向当前用户发送
+            // 创建消息对象
+            ChatMessage message = new ChatMessage(currentUsername, friendId, messageContent, getCurrentTime(), R.drawable.p9);
+            messageList.add(message);
 
-            // 添加到服务器
-            saveChatInfo(token, currentUsername, friendId, messageContent,getAvatarResourceId(currentUsername), new Callback() {
+            // 保存消息到服务器
+            saveChatInfo(token, currentUsername, friendId, messageContent, getAvatarResourceId(currentUsername), new Callback() {
                 @Override
                 public void onResult(WebResult<Map<String, Object>> result) throws JSONException {
-                    if (result.getCode()  == 200) {
-                        System.out.println(currentUsername+"to"+friendId+"Success");
+                    if (result.getCode() == 200) {
+                        // 保存成功，继续处理
+                        Log.d("ChatActivity3", "Message saved successfully");
                     }
                 }
             });
 
-            ChatMessage message = new ChatMessage( currentUsername, friendId, messageContent, getCurrentTime(), R.drawable.p9);
-            messageList.add(message);
+            // 更新消息列表
             messageAdapter.notifyItemInserted(messageList.size() - 1);
             recyclerView.scrollToPosition(messageList.size() - 1); // 滚动到最后一条消息
             inputMessage.setText(""); // 清空输入框
 
-            
+            // 发送消息到服务器（检查是否有问题）
             Message jsonMessage = new Message(1, currentUsername, friendId, messageContent);
-            String jsonString = jsonMessage.toJson().toString();
-            webSocket.send(jsonString); // 发送消息到服务器
+            try {
+                String jsonString = jsonMessage.toJson().toString();
+                webSocket.send(jsonString); // 发送消息到服务器
+            } catch (Exception e) {
+                Log.e("ChatActivity3", "Error sending message: " + e.getMessage());
+            }
         }
     }
 
-
-    private void insertMessageToDatabase(String sender, String receiver, String message) {
-        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
-            db.execSQL("INSERT INTO " + ChatDatabaseHelper.TABLE_MESSAGES +
-                            " (" + ChatDatabaseHelper.COLUMN_MESSAGE_SENDER + ", " +
-                            ChatDatabaseHelper.COLUMN_MESSAGE_RECEIVER + ", " +
-                            ChatDatabaseHelper.COLUMN_MESSAGE_CONTENT + ") VALUES (?, ?, ?)",
-                    new Object[]{sender, receiver, message}); // 使用参数化查询避免 SQL 注入
-            Log.d("ChatActivity3", "Message inserted: " + sender + " -> " + receiver + ": " + message);
-        } catch (Exception e) {
-            Log.e("ChatActivity3", "Error inserting message", e);
-        }
     }
 
-}
+//    private void insertMessageToDatabase(String sender, String receiver, String message) {
+//        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
+//            db.execSQL("INSERT INTO " + ChatDatabaseHelper.TABLE_MESSAGES +
+//                            " (" + ChatDatabaseHelper.COLUMN_MESSAGE_SENDER + ", " +
+//                            ChatDatabaseHelper.COLUMN_MESSAGE_RECEIVER + ", " +
+//                            ChatDatabaseHelper.COLUMN_MESSAGE_CONTENT + ") VALUES (?, ?, ?)",
+//                    new Object[]{sender, receiver, message}); // 使用参数化查询避免 SQL 注入
+//            Log.d("ChatActivity3", "Message inserted: " + sender + " -> " + receiver + ": " + message);
+//        } catch (Exception e) {
+//            Log.e("ChatActivity3", "Error inserting message", e);
+//        }
+//    }

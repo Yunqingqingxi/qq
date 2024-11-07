@@ -277,13 +277,17 @@ public class FrameActivity extends BaseActivity {
         String token = getSharedPreferences("MyRefs", MODE_PRIVATE).getString("token", "");
         notifySender(currentUsername, username, token);
         acceptFriend(currentUsername, username, token, new Callback() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onResult(WebResult<Map<String, Object>> result) {
                 if (result.getCode() == 200) {
                     runOnUiThread(() -> {
                         showToast("好友请求已接受");
-//                        dbHelper.addFriend(currentUsername,username); // 添加好友到数据库
-                        fetchFriendListFromServer();
+                        // 刷新好友列表
+                        fetchFriendListFromServer();  // 重新加载好友列表
+
+//                        // 如果有必要，也可以直接手动刷新数据
+//                        friendAdapter.notifyDataSetChanged(); // 通知适配器更新
                         System.out.println("Succee");
                     });
                 }

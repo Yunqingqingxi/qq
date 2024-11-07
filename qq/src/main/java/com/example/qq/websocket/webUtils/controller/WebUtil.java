@@ -339,24 +339,29 @@ public static void saveChatInfo(String token, String sender, String receiver, St
             Map<String, Object> messages = (Map<String, Object>) data.get("messages");
 
             if (messages != null) {
-                // 假设你需要提取 "1" 下的消息列表
-                List<Map<String, Object>> messageList = (List<Map<String, Object>>) messages.get(sender);
+                // 提取发送者的消息列表
+                List<Map<String, Object>> senderMessages = (List<Map<String, Object>>) messages.get(sender);
 
-                // 将提取的消息列表设置到data的messages字段中
-                data.put("messages", messageList);  // 更新data中的messages内容
+                // 提取接收者的消息列表
+                List<Map<String, Object>> receiverMessages = (List<Map<String, Object>>) messages.get(receiver);
+
+                // 保存消息列表
+                data.put("senderMessages", senderMessages);  // 保存发送者的消息列表
+                data.put("receiverMessages", receiverMessages);  // 保存接收者的消息列表
             }
+
+            // 返回成功的WebResult
             result = WebResult.success(null);
-            // 设置成功信息
             result.setCode(200);
             result.setMessage("获取聊天信息成功");
 
-            // 将提取并更新的data设置回 WebResult
+            // 将更新后的data设置回WebResult
             result.setData(data);
 
             return result;  // 返回成功的WebResult
         } catch (Exception e) {
             e.printStackTrace();
-            return WebResult.error(null); // 处理解析异常
+            return WebResult.error(null);  // 处理解析异常
         }
     }
 }
