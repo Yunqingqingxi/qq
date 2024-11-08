@@ -5,15 +5,12 @@ import static com.example.qq.websocket.webUtils.controller.WebUtil.getChatInfo;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.saveChatInfo;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -28,15 +25,12 @@ import com.example.qq.websocket.webResult.WebResult;
 import com.example.qq.websocket.webUtils.controller.Callback;
 import com.example.qq.websocket.webUtils.controller.MessageFilter;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -286,7 +280,13 @@ public class ChatActivity3 extends BaseActivity {
     }
 
     private void setupListeners() {
-        findViewById(R.id.backButton).setOnClickListener(v -> finish()); // 返回按钮
+        findViewById(R.id.backButton).setOnClickListener(v ->{
+            // 设置结果返回 FrameActivity，通知需要刷新
+            Intent intent = new Intent();
+            intent.putExtra("refresh", true);  // 设置标志，告诉 FrameActivity 需要刷新
+            setResult(RESULT_OK, intent);  // 设置返回结果
+            finish();  // 关闭当前 ChatActivity
+        }); // 返回按钮
         findViewById(R.id.sendButton).setOnClickListener(v -> sendMessage()); // 发送按钮
     }
 

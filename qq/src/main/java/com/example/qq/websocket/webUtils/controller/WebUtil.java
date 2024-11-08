@@ -364,4 +364,102 @@ public static void saveChatInfo(String token, String sender, String receiver, St
             return WebResult.error(null);  // 处理解析异常
         }
     }
+    // 获取用户信息
+    public static void getUserInfo(String token, String userId, Callback callback) {
+        executorService.execute(() -> {
+            WebResult<Map<String, Object>> result = performGetUserInfo(token, userId);
+            // 切换到主线程处理结果
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (callback != null) {
+                    try {
+                        callback.onResult(result);
+                    }catch (Exception e){
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+        });
+    }
+
+    private static WebResult<Map<String, Object>> performGetUserInfo(String token, String userId){
+        // 使用 String.format 代替字符串拼接
+        String urlString = String.format("%s/getuser/%s", url, userId);
+        // 调用封装的 getConnect 方法
+        String response = Connect.getConnect(urlString, token);
+        System.out.println("Response: " + response);
+
+        // 处理响应结果
+        WebResult<Map<String, Object>> result;
+        try {
+            // 直接解析JSON响应，获取data部分
+            JsonUtil parser = new JsonUtil(response);
+            Map<String, Object> responseData = parser.parseToMap(response);
+            // 获取"data"部分
+            Map<String, Object> data = (Map<String, Object>) responseData.get("data");
+            // 返回成功的WebResult
+            result = WebResult.success(null);
+            result.setCode(200);
+            result.setMessage("获取用户信息成功");
+            // 将更新后的data设置回WebResult
+            result.setData(data);
+            return result;  // 返回成功的WebResult
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return WebResult.error(null);  // 处理解析异常
+    }
+    // 获取特定的好友列表
+    public static void getSpaFriendList(String token, String username, Callback callback) {
+        executorService.execute(() -> {
+            WebResult<Map<String, Object>> result = performGetSpaFriendList(token, username);
+            // 切换到主线程处理结果
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (callback != null) {
+                    try {
+                        callback.onResult(result);
+                    }catch (Exception e){
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+        });
+    }
+
+    private static WebResult<Map<String, Object>> performGetSpaFriendList(String token, String username) {
+        // 使用 String.format 代替字符串拼接
+        String urlString = String.format("%s/getuserandmessage/%s", url, username);
+
+        // 调用封装的 getConnect 方法
+        String response = Connect.getConnect(urlString, token);
+        System.out.println("Response: " + response);
+
+        // 处理响应结果
+        WebResult<Map<String, Object>> result;
+        try {
+            // 直接使用 JsonUtil 解析 JSON 响应
+            JsonUtil parser = new JsonUtil(response);
+            WebResult<Map<String, Object>> webResult = parser.getWebResult();
+
+            // 获取 "data" 部分
+            Map<String, Object> data = (Map<String, Object>) webResult.getData();
+
+            // 设置成功返回结果
+            result = WebResult.success(null);
+            result.setCode(200);
+            result.setMessage("获取特定好友列表成功");
+
+            // 将更新后的 data 设置回 WebResult
+            result.setData(data);
+            return result;
+
+        } catch (Exception e) {
+            // 异常处理
+            e.printStackTrace();
+            result = WebResult.error(null);
+            result.setCode(500);
+            result.setMessage("服务器解析错误");
+            return result;
+        }
+    }
+
 }

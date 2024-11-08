@@ -1,8 +1,10 @@
 package com.example.qq;
 
 import static com.example.qq.util.JsonUtil.parseMessage;
+import static com.example.qq.util.TimeUtil.parseISO8601;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.acceptFriend;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.getFriendList;
+import static com.example.qq.websocket.webUtils.controller.WebUtil.getSpaFriendList;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
@@ -94,6 +96,18 @@ public class FrameActivity extends BaseActivity {
             Toast.makeText(FrameActivity.this, "空间按钮被点击", Toast.LENGTH_SHORT).show();
         });
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // 检查是否需要刷新页面
+        if (getIntent().getBooleanExtra("refresh", false)) {
+            // 刷新页面的数据
+            loadFriends();  // 重新加载好友列表（根据你的需求）
+            // 清除标志位，避免下次执行
+            getIntent().removeExtra("refresh");
+        }
+    }
+
 
 
     private void initializeWebSocketClient() {
@@ -177,8 +191,65 @@ public class FrameActivity extends BaseActivity {
         fetchFriendListFromServer();
     }
 
+//    private void fetchFriendListFromServer() {
+////        getFriendList(token, currentUsername, new Callback() {
+////            @Override
+////            public void onResult(WebResult<Map<String, Object>> result) throws JSONException {
+////                if (result.getCode() == 200) {
+////                    Map<String, Object> data = result.getData();
+////                    Object friendsObj = data.get("friends");
+////
+////                    if (friendsObj instanceof JSONArray) {
+////                        JSONArray friendsArray = (JSONArray) friendsObj;
+////                        List<Map<String, Object>> friendDataList = new ArrayList<>();
+////
+////                        // 将 JSONArray 转换为 List<Map<String, Object>> 以便后续处理
+////                        for (int i = 0; i < friendsArray.length(); i++) {
+////                            JSONObject friendJson = friendsArray.getJSONObject(i);
+////                            Map<String, Object> friendMap = new HashMap<>();
+////                            Iterator<String> keys = friendJson.keys();
+////                            while (keys.hasNext()) {
+////                                String key = keys.next();
+////                                friendMap.put(key, friendJson.get(key));
+////                            }
+////                            friendDataList.add(friendMap);
+////                        }
+////
+////                        // 从网络数据更新好友列表
+////                        updateFriendListWithNetworkData(friendDataList);
+////                    }
+////                }
+////            }
+////        });
+//        getSpaFriendList(token, currentUsername, new Callback() {
+//            @Override
+//            public void onResult(WebResult<Map<String, Object>> result) throws JSONException {
+//                if (result.getCode() == 200) {
+//                    Map<String, Object> data = result.getData();
+//                    Object friendsObj = data.get("friends");
+//                    if (friendsObj instanceof JSONArray) {
+//                        JSONArray friendsArray = (JSONArray) friendsObj;
+//                        List<Map<String, Object>> friendDataList = new ArrayList<>();
+//                        for (int i = 0; i < friendsArray.length(); i++) {
+//                            JSONObject friendJson = friendsArray.getJSONObject(i);
+//                            Map<String, Object> friendMap = new HashMap<>();
+//                            Iterator<String> keys = friendJson.keys();
+//                            while (keys.hasNext()) {
+//                                String key = keys.next();
+//                                friendMap.put(key, friendJson.get(key));
+//                            }
+//                            friendDataList.add(friendMap);
+//                        }
+//                        updateFriendListWithNetworkData(friendDataList);
+//                    }
+//                }
+//            }
+//        });
+//
+//    }
+
     private void fetchFriendListFromServer() {
-        getFriendList(token, currentUsername, new Callback() {
+        getSpaFriendList(token, currentUsername, new Callback() {
             @Override
             public void onResult(WebResult<Map<String, Object>> result) throws JSONException {
                 if (result.getCode() == 200) {
@@ -187,27 +258,45 @@ public class FrameActivity extends BaseActivity {
 
                     if (friendsObj instanceof JSONArray) {
                         JSONArray friendsArray = (JSONArray) friendsObj;
-                        List<Map<String, Object>> friendDataList = new ArrayList<>();
+                        List<Friend> friendDataList = new ArrayList<>();
 
-                        // 将 JSONArray 转换为 List<Map<String, Object>> 以便后续处理
+                        // 解析 JSON 数据并创建 Friend 对象
                         for (int i = 0; i < friendsArray.length(); i++) {
                             JSONObject friendJson = friendsArray.getJSONObject(i);
-                            Map<String, Object> friendMap = new HashMap<>();
-                            Iterator<String> keys = friendJson.keys();
-                            while (keys.hasNext()) {
-                                String key = keys.next();
-                                friendMap.put(key, friendJson.get(key));
+                            Friend friend = new Friend();
+
+                            // 设置好友的各项属性
+                            friend.setUsername(friendJson.optString("username"));
+                            String nickname = friendJson.optString("nickname");
+                            if (nickname.equals("null")) {
+                                nickname = friendJson.optString("username");  // 如果昵称为空，使用用户名
                             }
-                            friendDataList.add(friendMap);
+                            friend.setNickname(nickname);
+                            String content = friendJson.optString("content");
+                            if (content.equals("null")) {
+                                content = "";  // 如果内容为空，使用默认签名
+                            }
+                            friend.setContent(content);
+                            friend.setTime(parseISO8601(friendJson.optString("timestamp")));
+                            int avatarResId = friendJson.optInt("avatarResId");
+                            if(avatarResId == 0){
+                                avatarResId = R.drawable.p9;  // 如果没有头像资源，使用默认头像
+                            }
+                            friend.setAvatar(avatarResId);  // 设置默认头像资源
+
+                            // 将 Friend 对象添加到列表
+                            friendDataList.add(friend);
                         }
 
-                        // 从网络数据更新好友列表
+                        // 更新好友列表
                         updateFriendListWithNetworkData(friendDataList);
                     }
                 }
             }
         });
     }
+
+
 
     @SuppressLint("NotifyDataSetChanged")
     private void handleServerMessage(String text) {
@@ -252,7 +341,8 @@ public class FrameActivity extends BaseActivity {
             showToast(message);  // 显示添加成功的消息
 
             // 更新好友列表显示
-            fetchFriendListFromServer();
+            loadFriends();
+//            fetchFriendListFromServer();
         });
     }
 
@@ -263,44 +353,30 @@ public class FrameActivity extends BaseActivity {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private void updateFriendListWithNetworkData(List<Map<String, Object>> friendDataList) {
-        friends.clear();
-        // 处理从网络请求中获取到的好友数据
-        List<String> friendIds = new ArrayList<>();
-        for (Map<String, Object> friend : friendDataList) {
-            Object friendId = friend.get("friendId");
-            if (friendId != null) {
-                friendIds.add(String.valueOf(friendId));
-            }
+    private void updateFriendListWithNetworkData(List<Friend> friendDataList) {
+        friends.clear();  // 清空旧的数据
+        friends.addAll(friendDataList);  // 添加新获取的好友数据
+
+        // 更新适配器
+        if (friendAdapter == null) {
+            initFriendAdapter(friends);  // 如果适配器为空，初始化适配器
+        } else {
+            friendAdapter.notifyDataSetChanged();  // 如果适配器已经存在，刷新数据
         }
 
-        // 更新好友列表
-        for (String friendId : friendIds) {
-            Friend friend = new Friend();
-            friend.setUsername(friendId);  // 假设 friendId 可以作为用户名
-            friend.setNickname(friendId);  // 假设昵称与用户名相同
-            friends.add(friend);
-        }
-
-        System.out.println("friends: " + friends);
-        initFriendAdapter(friends);
-
-        // 确保在 UI 线程上执行 notifyDataSetChanged
+        // 确保在 UI 线程上更新 UI
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (friendAdapter != null) {
-                    friendsFragment.updateFriends(friends);
-//                    friendAdapter.notifyDataSetChanged();
-                }else {
-                    // 如果已经加载过，直接更新数据
-//                    friendsFragment.updateFriends(friends);
+                if (friendsFragment != null) {
+                    friendsFragment.updateFriends(friends);  // 更新好友列表显示
+                } else {
                     System.out.println("friendsFragment is not null");
                 }
             }
         });
-
     }
+
 
     // 更新
     private void initFriendAdapter(List<Friend> friends) {
