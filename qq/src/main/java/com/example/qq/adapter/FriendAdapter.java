@@ -16,12 +16,9 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.qq.ChatActivity3;
-import com.example.qq.pojo.Friend;
 import com.example.qq.R;
+import com.example.qq.pojo.Friend;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -139,16 +136,16 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
             textViewTime = itemView.findViewById(R.id.textViewTime);
 
             // itemView 的点击事件
-//            itemView.setOnClickListener(v -> {
-//                int position = getBindingAdapterPosition();
-//                if (position != RecyclerView.NO_POSITION) {
-//                    Friend friend = friendList.get(position);
-//                    Intent intent = new Intent(context, ChatActivity3.class); // 替换为 ChatActivity 的类名
-//                    intent.putExtra("friendNickname", friend.getNickname()); // 传递好友昵称
-//                    intent.putExtra("friendId", friend.getUsername()); // 传递好友 ID（假设你有这个字段）
-//                    context.startActivity(intent);
-//                }
-//            });
+            itemView.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    Friend friend = friendList.get(position);
+                    Intent intent = new Intent(context, ChatActivity3.class); // 替换为 ChatActivity 的类名
+                    intent.putExtra("friendNickname", friend.getNickname()); // 传递好友昵称
+                    intent.putExtra("friendId", friend.getUsername()); // 传递好友 ID（假设你有这个字段）
+                    context.startActivity(intent);
+                }
+            });
         }
 
         public void bind(Friend friend) {

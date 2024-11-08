@@ -96,19 +96,6 @@ public class FrameActivity extends BaseActivity {
             Toast.makeText(FrameActivity.this, "空间按钮被点击", Toast.LENGTH_SHORT).show();
         });
     }
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // 检查是否需要刷新页面
-        if (getIntent().getBooleanExtra("refresh", false)) {
-            // 刷新页面的数据
-            loadFriends();  // 重新加载好友列表（根据你的需求）
-            // 清除标志位，避免下次执行
-            getIntent().removeExtra("refresh");
-        }
-    }
-
-
 
     private void initializeWebSocketClient() {
         webClient = WebClient.getInstance();

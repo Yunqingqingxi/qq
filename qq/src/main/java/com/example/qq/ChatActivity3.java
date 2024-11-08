@@ -244,8 +244,11 @@ public class ChatActivity3 extends BaseActivity {
                             }
                         });
 
-                        // 通知适配器更新界面
-                        messageAdapter.notifyDataSetChanged();
+                        // 通知适配器更新并插入新消息
+                        messageAdapter.notifyItemInserted(messageList.size() - 1);
+
+                        // 滚动到最新消息
+                        recyclerView.scrollToPosition(messageList.size() - 1);
                     }
                 } else {
                     // 处理查询失败的情况
@@ -280,13 +283,7 @@ public class ChatActivity3 extends BaseActivity {
     }
 
     private void setupListeners() {
-        findViewById(R.id.backButton).setOnClickListener(v ->{
-            // 设置结果返回 FrameActivity，通知需要刷新
-            Intent intent = new Intent();
-            intent.putExtra("refresh", true);  // 设置标志，告诉 FrameActivity 需要刷新
-            setResult(RESULT_OK, intent);  // 设置返回结果
-            finish();  // 关闭当前 ChatActivity
-        }); // 返回按钮
+        findViewById(R.id.backButton).setOnClickListener(v -> finish());  // 关闭当前 ChatActivity
         findViewById(R.id.sendButton).setOnClickListener(v -> sendMessage()); // 发送按钮
     }
 
