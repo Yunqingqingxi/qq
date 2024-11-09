@@ -84,10 +84,14 @@ public class FrameActivity extends BaseActivity {
 
         getNowUser = new GetNowUser(FrameActivity.this);
         currentUsername = getNowUser.getCurrentUsername(); // 获取当前用户名
+        SharedPreferences sharedPreferences = getSharedPreferences("MyRefs", MODE_PRIVATE);
+        token = sharedPreferences.getString("token", "");
 
         initializeWebSocketClient();
         initializeUI();
         initializeDatabase();
+
+        loadFriends();
 
         // 加载好友列表Fragment
         loadFriendListFragment();
@@ -98,17 +102,26 @@ public class FrameActivity extends BaseActivity {
 
         btnMsg.setOnClickListener(v -> {
             btnMsg.setImageResource(R.drawable.p32);
+            // 重置其他 ImageButton 的图片资源
+            btnFri.setImageResource(R.drawable.p3);
+            btnAut.setImageResource(R.drawable.p4);
             // 点击消息按钮
             Toast.makeText(FrameActivity.this, "消息按钮被点击", Toast.LENGTH_SHORT).show();
         });
 
         btnFri.setOnClickListener(v -> {
             btnFri.setImageResource(R.drawable.p5);
+            // 重置其他 ImageButton 的图片资源
+            btnMsg.setImageResource(R.drawable.p2);
+            btnAut.setImageResource(R.drawable.p4);
             // 点击好友按钮
             Toast.makeText(FrameActivity.this, "好友按钮被点击", Toast.LENGTH_SHORT).show();
         });
         btnAut.setOnClickListener(v -> {
             btnAut.setImageResource(R.drawable.p6);
+            // 重置其他 ImageButton 的图片资源
+            btnMsg.setImageResource(R.drawable.p2);
+            btnFri.setImageResource(R.drawable.p3);
             // 点击空间按钮
             Toast.makeText(FrameActivity.this, "空间按钮被点击", Toast.LENGTH_SHORT).show();
         });
@@ -207,19 +220,7 @@ public class FrameActivity extends BaseActivity {
         dbHelper = new FriendDatabaseHelper(this);
     }
 
-    public Integer byteArrayToInteger(byte[] avatar) {
-        if (avatar == null || avatar.length < 4) {
-            return 0; // 如果数组为空或长度小于4，返回默认值0
-        }
-
-        return ((avatar[0] & 0xFF) << 24) |
-                ((avatar[1] & 0xFF) << 16) |
-                ((avatar[2] & 0xFF) << 8) |
-                (avatar[3] & 0xFF);
-    }
-
     private void loadFriendListFragment() {
-        loadFriends();
         // 检查 Fragment 是否已经加载
         friendsFragment = (FriendsRecyclerViewFragment) getSupportFragmentManager()
                 .findFragmentByTag(FriendsRecyclerViewFragment.class.getSimpleName());
@@ -241,11 +242,7 @@ public class FrameActivity extends BaseActivity {
 
 
     private void loadFriends() {
-        currentUsername = getNowUser.getCurrentUsername();
-        SharedPreferences sharedPreferences = getSharedPreferences("MyRefs", MODE_PRIVATE);
-        token = sharedPreferences.getString("token", "");
-
-        // 从网络加载好友列表
+        // 异步加载好友列表
         fetchFriendListFromServer();
     }
 
@@ -396,7 +393,7 @@ public class FrameActivity extends BaseActivity {
 
 //                        // 如果有必要，也可以直接手动刷新数据
 //                        friendAdapter.notifyDataSetChanged(); // 通知适配器更新
-                        System.out.println("Succee");
+//                        System.out.println("Succee");
                     });
                 }
             }

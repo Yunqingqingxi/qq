@@ -13,8 +13,11 @@ public class WebClient {
     private WebSocketListener listener;
 
     // Private constructor for singleton
+    // Private constructor for singleton
     private WebClient() {
-        client = new OkHttpClient();
+        client = new OkHttpClient.Builder()
+                // 设置超时时间等参数
+                .build();
     }
 
     // Get singleton instance
