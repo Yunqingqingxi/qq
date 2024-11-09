@@ -1,5 +1,7 @@
 package com.example.qq.websocket.web;
 
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.WebSocket;
@@ -17,6 +19,7 @@ public class WebClient {
     private WebClient() {
         client = new OkHttpClient.Builder()
                 // 设置超时时间等参数
+                .callTimeout(10000, TimeUnit.SECONDS)
                 .build();
     }
 

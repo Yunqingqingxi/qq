@@ -26,6 +26,8 @@
         android:textColor="#FFFFFF"
         android:background="@drawable/rounded_bubble"
         android:padding="8dp"
+        android:minLines="1"
+        android:maxLines="50"
         tools:targetApi="21"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

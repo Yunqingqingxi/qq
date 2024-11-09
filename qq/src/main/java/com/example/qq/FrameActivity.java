@@ -1,12 +1,9 @@
 package com.example.qq;
 
 import static com.example.qq.util.JsonUtil.parseMessage;
-import static com.example.qq.util.TimeUtil.formatDateToHHMM;
 import static com.example.qq.util.TimeUtil.formatToHHMM;
-import static com.example.qq.util.TimeUtil.parseISO8601;
 import static com.example.qq.util.TimeUtil.parseTime;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.acceptFriend;
-import static com.example.qq.websocket.webUtils.controller.WebUtil.getFriendList;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.getSpaFriendList;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.getUserInfo;
 
@@ -14,11 +11,13 @@ import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Base64;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -28,13 +27,16 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.qq.adapter.FriendAdapter;
+import com.example.qq.fargments.ContactFragment;
+import com.example.qq.fargments.DynamicFragment;
 import com.example.qq.fargments.FriendsRecyclerViewFragment;
+import com.example.qq.pojo.Friend;
 import com.example.qq.pojo.User;
 import com.example.qq.websocket.db.FriendDatabaseHelper;
-import com.example.qq.pojo.Friend;
 import com.example.qq.websocket.domain.Message;
 import com.example.qq.websocket.web.WebClient;
 import com.example.qq.websocket.webResult.WebResult;
@@ -47,14 +49,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import okhttp3.Response;
 import okhttp3.WebSocket;
@@ -76,6 +74,8 @@ public class FrameActivity extends BaseActivity {
     private FriendsRecyclerViewFragment friendsFragment;
     private TextView textViewNickname;
     private ImageView imageViewAvatar;
+    private DynamicFragment dynamicFragment;
+    private ContactFragment contactFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +91,8 @@ public class FrameActivity extends BaseActivity {
         initializeUI();
         initializeDatabase();
 
+        initFragments();
+
         loadFriends();
 
         // 加载好友列表Fragment
@@ -101,30 +103,57 @@ public class FrameActivity extends BaseActivity {
         btnAut = findViewById(R.id.btnAut);
 
         btnMsg.setOnClickListener(v -> {
+            loadFriends();
+            // 切换到 FriendsRecyclerViewFragment
+            loadFriendListFragment();
+            // 更新 ImageButton 的图片资源
             btnMsg.setImageResource(R.drawable.p32);
             // 重置其他 ImageButton 的图片资源
             btnFri.setImageResource(R.drawable.p3);
             btnAut.setImageResource(R.drawable.p4);
-            // 点击消息按钮
-            Toast.makeText(FrameActivity.this, "消息按钮被点击", Toast.LENGTH_SHORT).show();
         });
 
         btnFri.setOnClickListener(v -> {
+            // 切换到 ContactFragment
+            loadContactFragment();
+            // 更新 ImageButton 的图片资源
             btnFri.setImageResource(R.drawable.p5);
             // 重置其他 ImageButton 的图片资源
             btnMsg.setImageResource(R.drawable.p2);
             btnAut.setImageResource(R.drawable.p4);
-            // 点击好友按钮
-            Toast.makeText(FrameActivity.this, "好友按钮被点击", Toast.LENGTH_SHORT).show();
         });
+
         btnAut.setOnClickListener(v -> {
+            // 切换到 DynamicFragment
+            loadDynamicFragment();
+            // 更新 ImageButton 的图片资源
             btnAut.setImageResource(R.drawable.p6);
             // 重置其他 ImageButton 的图片资源
             btnMsg.setImageResource(R.drawable.p2);
             btnFri.setImageResource(R.drawable.p3);
-            // 点击空间按钮
-            Toast.makeText(FrameActivity.this, "空间按钮被点击", Toast.LENGTH_SHORT).show();
         });
+
+    }
+
+    private void initFragments() {
+        friendsFragment = new FriendsRecyclerViewFragment(friends);
+        dynamicFragment = new DynamicFragment();
+        contactFragment = new ContactFragment();
+    }
+
+
+    private void loadContactFragment() {
+        showFragment(contactFragment);
+    }
+
+    private void loadDynamicFragment() {
+        showFragment(dynamicFragment);
+    }
+
+    private void showFragment(Fragment fragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.commit();
     }
 
     private void initializeWebSocketClient() {

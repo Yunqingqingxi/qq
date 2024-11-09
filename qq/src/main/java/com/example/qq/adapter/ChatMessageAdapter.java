@@ -109,11 +109,34 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
                 // 如果没有头像，使用默认头像
                 avatar.setImageResource(R.drawable.p14);
             }
-
-
             // 设置消息内容
-            messageText.setText(message.getContent());
+            // 设置消息内容，并在15个中文字符时换行
+            String content = message.getContent();
+            if (content != null) {
+                int length = content.length();
+                int chineseCharCount = 0;
+                for (int i = 0; i < length; i++) {
+                    if (isChineseCharacter(content.charAt(i))) {
+                        chineseCharCount++;
+                        if (chineseCharCount == 15) {
+                            content = content.substring(0, i + 1) + "\n" + content.substring(i + 1);
+                            chineseCharCount = 0;
+                        }
+                    }
+                }
+                messageText.setText(content);
+            }
         }
-
+    }
+    // 检查字符是否为中文字符
+    private boolean isChineseCharacter(char ch) {
+        Character.UnicodeBlock block = Character.UnicodeBlock.of(ch);
+        return block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
+                || block == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
+                || block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
+                || block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B
+                || block == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION
+                || block == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS
+                || block == Character.UnicodeBlock.GENERAL_PUNCTUATION;
     }
 }

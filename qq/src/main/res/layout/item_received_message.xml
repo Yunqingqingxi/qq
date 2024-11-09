@@ -28,6 +28,8 @@
         android:layout_marginEnd="255dp"
         android:background="@drawable/rounded_bubble"
         android:padding="8dp"
+        android:minLines="1"
+        android:maxLines="50"
         android:text="消息内容"
         android:textColor="#FFFFFF"
         android:textSize="15sp"
