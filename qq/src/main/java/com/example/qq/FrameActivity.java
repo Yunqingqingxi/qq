@@ -97,15 +97,18 @@ public class FrameActivity extends BaseActivity {
         btnAut = findViewById(R.id.btnAut);
 
         btnMsg.setOnClickListener(v -> {
+            btnMsg.setImageResource(R.drawable.p32);
             // 点击消息按钮
             Toast.makeText(FrameActivity.this, "消息按钮被点击", Toast.LENGTH_SHORT).show();
         });
 
         btnFri.setOnClickListener(v -> {
+            btnFri.setImageResource(R.drawable.p5);
             // 点击好友按钮
             Toast.makeText(FrameActivity.this, "好友按钮被点击", Toast.LENGTH_SHORT).show();
         });
         btnAut.setOnClickListener(v -> {
+            btnAut.setImageResource(R.drawable.p6);
             // 点击空间按钮
             Toast.makeText(FrameActivity.this, "空间按钮被点击", Toast.LENGTH_SHORT).show();
         });
