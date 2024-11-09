@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import okhttp3.Response;
@@ -236,7 +237,7 @@ public class ChatActivity3 extends BaseActivity {
                         }
 
                         // 按照时间戳进行排序（升序），确保从最早的消息开始
-                        Collections.sort(messageList, new Comparator<ChatMessage>() {
+                        messageList.sort(new Comparator<ChatMessage>() {
                             @Override
                             public int compare(ChatMessage o1, ChatMessage o2) {
                                 // 假设 timestamp 是 ISO 8601 格式的字符串，直接进行比较
@@ -244,11 +245,13 @@ public class ChatActivity3 extends BaseActivity {
                             }
                         });
 
-                        // 通知适配器更新并插入新消息
-                        messageAdapter.notifyItemInserted(messageList.size() - 1);
-
-                        // 滚动到最新消息
-                        recyclerView.scrollToPosition(messageList.size() - 1);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                messageAdapter.notifyDataSetChanged();
+                                recyclerView.scrollToPosition(messageList.size() - 1);  // 滚动到最新的消息
+                            }
+                        });
                     }
                 } else {
                     // 处理查询失败的情况
@@ -263,15 +266,17 @@ public class ChatActivity3 extends BaseActivity {
     private String formatTimestamp(String timestamp) {
         // 假设时间戳是字符串格式的 ISO 8601 时间，使用 SimpleDateFormat 来格式化
         try {
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat originalFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat originalFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
             Date date = originalFormat.parse(timestamp);
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat targetFormat = new SimpleDateFormat("HH:mm");
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat targetFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             return targetFormat.format(date);
         } catch (ParseException e) {
             e.printStackTrace();
             return timestamp; // 如果格式化失败，返回原始时间戳
         }
     }
+
+
 
     private int getAvatarResourceId(String username) {
         return R.drawable.p9; // 目前只使用一个默认头像
@@ -328,16 +333,3 @@ public class ChatActivity3 extends BaseActivity {
     }
 
     }
-
-//    private void insertMessageToDatabase(String sender, String receiver, String message) {
-//        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
-//            db.execSQL("INSERT INTO " + ChatDatabaseHelper.TABLE_MESSAGES +
-//                            " (" + ChatDatabaseHelper.COLUMN_MESSAGE_SENDER + ", " +
-//                            ChatDatabaseHelper.COLUMN_MESSAGE_RECEIVER + ", " +
-//                            ChatDatabaseHelper.COLUMN_MESSAGE_CONTENT + ") VALUES (?, ?, ?)",
-//                    new Object[]{sender, receiver, message}); // 使用参数化查询避免 SQL 注入
-//            Log.d("ChatActivity3", "Message inserted: " + sender + " -> " + receiver + ": " + message);
-//        } catch (Exception e) {
-//            Log.e("ChatActivity3", "Error inserting message", e);
-//        }
-//    }

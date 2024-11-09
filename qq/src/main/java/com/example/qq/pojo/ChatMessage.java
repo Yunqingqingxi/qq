@@ -2,10 +2,14 @@ package com.example.qq.pojo;
 
 import android.annotation.SuppressLint;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * ChatMessage 类，表示聊天消息的基本信息。
@@ -74,18 +78,35 @@ public class ChatMessage {
     }
 
     // Private 方法
-    private LocalDateTime parseTimestamp(String timestampStr) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-        // 解析时间部分
-        LocalTime time = LocalTime.parse(timestampStr, formatter);
-        // 使用当前日期并将时间部分设置为解析的时间
-        return LocalDate.now().atTime(time);
+    private LocalDateTime parseTimestamp(String timestamp) {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+        return LocalDateTime.parse(timestamp, formatter);
     }
 
+
     private String formatTimestamp(LocalDateTime timestamp) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return timestamp.format(formatter);
     }
+
+    // 将时间戳字符串转换为完整的日期时间格式
+    private String formatTimestamp(String timestamp) {
+        // 定义目标格式
+        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+        try {
+            // 解析输入时间戳
+            Date date = inputFormat.parse(timestamp);
+            // 返回格式化后的日期时间字符串
+            return outputFormat.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            // 返回原始时间戳（如果解析失败）
+            return timestamp;
+        }
+    }
+
 
 
     // 方法重写

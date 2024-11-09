@@ -62,6 +62,7 @@ public class FrameActivity extends BaseActivity {
     private String token;
     private ImageButton btnMsg,btnFri,btnAut;
     private FriendsRecyclerViewFragment friendsFragment;
+    private EditText editText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
