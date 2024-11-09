@@ -1,13 +1,17 @@
 package com.example.qq.adapter;
 
+import static com.example.qq.util.TimeUtil.formatTime;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,16 +20,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 //import com.example.qq.ChatActivity3;
 import com.example.qq.ChatActivity3;
-import com.example.qq.pojo.Friend;
 import com.example.qq.R;
+import com.example.qq.pojo.Friend;
 
-import java.util.Date;
 import java.util.List;
 
 /**
  * 好友列表适配器，用于显示好友信息的 RecyclerView
  */
 public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendViewHolder> {
+
     private List<Friend> friendList;  // 好友列表
     private Context context;  // 上下文
 
@@ -67,9 +71,23 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
      */
     @SuppressLint("NotifyDataSetChanged")
     public void updateFriendList(List<Friend> newFriendList) {
-        this.friendList.clear();  // 清空旧数据
-        this.friendList.addAll(newFriendList);  // 添加新数据
-        notifyDataSetChanged();  // 通知适配器更新视图
+        if (newFriendList != null) {
+            this.friendList.clear();  // 清空旧数据
+            this.friendList.addAll(newFriendList);  // 添加新数据
+            notifyDataSetChanged();  // 通知适配器更新视图
+        }
+    }
+
+    /**
+     * 向好友列表中添加一个新的好友
+     *
+     * @param friend 新添加的好友
+     */
+    public void addFriend(Friend friend) {
+        if (!friendList.contains(friend)) {
+            friendList.add(friend);
+            notifyItemInserted(friendList.size() - 1);  // 通知插入了新项
+        }
     }
 
     /**
@@ -127,6 +145,8 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
                 if (position != RecyclerView.NO_POSITION) {
                     Friend friend = friendList.get(position);
                     Intent intent = new Intent(context, ChatActivity3.class); // 替换为 ChatActivity 的类名
+//                    intent.putExtra("userAvatar",);
+                    intent.putExtra("friendAvatar", friend.getAvatar()); // 传递好友头像
                     intent.putExtra("friendNickname", friend.getNickname()); // 传递好友昵称
                     intent.putExtra("friendId", friend.getUsername()); // 传递好友 ID（假设你有这个字段）
                     context.startActivity(intent);
@@ -135,14 +155,31 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
         }
 
         public void bind(Friend friend) {
-            imageViewAvatar.setImageResource(friend.getAvatar());
+
+            String avatarBase64 = friend.getAvatar();
+            if (avatarBase64 != null && !avatarBase64.isEmpty()) {
+                // 解码 Base64 字符串为字节数组
+                byte[] avatarBytes = Base64.decode(avatarBase64, Base64.DEFAULT);
+                if (avatarBytes != null) {
+                    // 将字节数组转换为 Bitmap
+                    Bitmap avatarBitmap = BitmapFactory.decodeByteArray(avatarBytes, 0, avatarBytes.length);
+                    if (avatarBitmap != null) {
+                        imageViewAvatar.setImageBitmap(avatarBitmap);
+                    } else {
+                        // 如果转换失败，使用默认头像
+                        imageViewAvatar.setImageResource(R.drawable.p14);
+                    }
+                }
+            } else {
+                // 如果没有头像，使用默认头像
+                imageViewAvatar.setImageResource(R.drawable.p14);
+            }
+
             textViewNickname.setText(friend.getNickname());
-            textViewMessage.setText(friend.getMessage());
+            textViewMessage.setText(friend.getContent());
             textViewTime.setText(formatTime(friend.getTime()));
+
         }
 
-        private String formatTime(Date time) {
-            return "昨天 22:00"; // 示例返回
-        }
     }
 }

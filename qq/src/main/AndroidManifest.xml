@@ -8,7 +8,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.As003"
-        tools:targetApi="31">
+        >
         <service
             android:name="com.example.qq.websocket.webUtils.controller.WebUtil"
             android:enabled="true"
@@ -23,21 +23,13 @@
         </activity>
         <activity android:name=".FrameActivity" android:exported="true">
         </activity>
-        <activity android:name=".RegisterActivity" android:exported="true">
-        </activity>
         <activity android:name=".ChatActivity3" android:exported="true">
         </activity>
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.provider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
-        </provider>
+        <activity android:name=".RegisterActivity" android:exported="true">
+        </activity>
+
     </application>
     <uses-permission android:name="android.permission.INTERNET"
         tools:ignore="ManifestOrder" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
 </manifest>

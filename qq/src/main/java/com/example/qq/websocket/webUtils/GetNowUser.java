@@ -3,6 +3,8 @@ package com.example.qq.websocket.webUtils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.qq.pojo.User;
+
 public class GetNowUser {
 
     // 定义 SharedPreferences 名称和键
@@ -34,5 +36,21 @@ public class GetNowUser {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_USERNAME, username);
         editor.apply(); // 提交更改
+    }
+    /**
+     *  记住当前登陆的yonghu
+     */
+    public void rememberUser(User user) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("username", user.getUsername());
+        editor.putString("nickname", user.getNickname());
+        editor.putString("avatar", user.getAvatar());
+        editor.apply(); // 提交更改
+    }
+    /**
+     * 获取记住的用户
+     */
+    public User getRememberedUser() {
+        return new User(sharedPreferences.getString("username", null), sharedPreferences.getString("nickname", null), sharedPreferences.getString("avatar", null));
     }
 }

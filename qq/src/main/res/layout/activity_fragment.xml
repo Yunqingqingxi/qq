@@ -1,76 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--  test.xml  -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
-
-
-
-    <EditText
-        android:id="@+id/searchBox"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="搜索"
-        android:textSize="14sp"
-        android:textColor="#999999"
-        app:layout_constraintTop_toBottomOf="@id/textViewNickname"
-        app:layout_constraintStart_toEndOf="parent"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        tools:ignore="NotSibling" />
-
-
-
-    <FrameLayout
-        android:id="@+id/fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintVertical_bias="0.0"
-        tools:layout_editor_absoluteX="0dp"
-        tools:ignore="MissingConstraints">
-
-    </FrameLayout>
-
-
-
+    android:layout_height="match_parent" >
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/bottomNavigation"
+        android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#F9F9F9"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:background="#EEF2FD"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/imageViewMessage"
-            android:layout_width="122dp"
-            android:layout_height="40dp"
-            android:src="@drawable/p32"
+            android:id="@+id/imageViewAvatar"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_margin="10dp"
+            android:src="@drawable/p29"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-
-        <ImageView
-            android:id="@+id/imageViewContact"
-            android:layout_width="122dp"
-            android:layout_height="40dp"
-            android:src="@drawable/p3"
-            android:layout_margin="10dp"
-            app:layout_constraintStart_toEndOf="@id/imageViewMessage"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/imageViewDynamic"
-            android:layout_width="122dp"
-            android:layout_height="40dp"
-            android:src="@drawable/p4"
-            android:layout_margin="10dp"
-            app:layout_constraintStart_toEndOf="@id/imageViewContact"
-            app:layout_constraintTop_toTopOf="parent"/>
+            android:id="@+id/imageViewPlus"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/p7"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textViewNickname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="楚青"
+            android:textColor="#333333"
+            android:textSize="18sp"
+            app:layout_constraintStart_toEndOf="@id/imageViewAvatar"
+            app:layout_constraintTop_toBottomOf="@id/imageViewAvatar"
+            app:layout_constraintTop_toTopOf="@id/imageViewAvatar" />
+
+        <TextView
+            android:id="@+id/textViewStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="手机在线 - WiFi"
+            android:textColor="#999999"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@id/imageViewAvatar"
+            app:layout_constraintStart_toEndOf="@id/imageViewAvatar" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- 用于显示 Fragment 的 FrameLayout -->
+        <FrameLayout
+            android:id="@+id/fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- 底部三个 ImageView，均分宽度和高度 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:orientation="horizontal"
+            android:background="#F8F8F8"
+            android:gravity="center"
+            android:padding="8dp">
+
+            <ImageButton
+                android:id="@+id/btnMsg"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="8dp"
+                android:layout_weight="1"
+                android:background="#F8F8F8"
+                android:contentDescription="Image 1"
+                android:scaleType="centerInside"
+                android:src="@drawable/p2"
+                tools:ignore="TouchTargetSizeCheck" />
+
+            <ImageButton
+                android:id="@+id/btnFri"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="8dp"
+                android:layout_weight="1"
+                android:background="#F8F8F8"
+                android:contentDescription="Image 2"
+                android:scaleType="centerInside"
+                android:src="@drawable/p3"
+                tools:ignore="TouchTargetSizeCheck" />
+
+            <ImageButton
+                android:id="@+id/btnAut"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="8dp"
+                android:layout_weight="1"
+                android:background="#F8F8F8"
+                android:contentDescription="Image 3"
+                android:scaleType="centerInside"
+                android:src="@drawable/p4"
+                tools:ignore="TouchTargetSizeCheck" />
+        </LinearLayout>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

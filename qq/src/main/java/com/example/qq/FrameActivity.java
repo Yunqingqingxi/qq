@@ -1,20 +1,26 @@
 package com.example.qq;
 
 import static com.example.qq.util.JsonUtil.parseMessage;
+import static com.example.qq.util.TimeUtil.formatDateToHHMM;
+import static com.example.qq.util.TimeUtil.formatToHHMM;
+import static com.example.qq.util.TimeUtil.parseISO8601;
+import static com.example.qq.util.TimeUtil.parseTime;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.acceptFriend;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.getFriendList;
+import static com.example.qq.websocket.webUtils.controller.WebUtil.getSpaFriendList;
+import static com.example.qq.websocket.webUtils.controller.WebUtil.getUserInfo;
 
 import android.annotation.SuppressLint;
-import android.content.ContentValues;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
+import android.util.Base64;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -22,14 +28,14 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.qq.adapter.FriendAdapter;
-import com.example.qq.fragment.ContactFragment;
-import com.example.qq.fragment.DynamicFragment;
-import com.example.qq.fragment.MessageFragment;
+import com.example.qq.fargments.ContactFragment;
+import com.example.qq.fargments.DynamicFragment;
+import com.example.qq.fargments.FriendsRecyclerViewFragment;
+import com.example.qq.pojo.User;
 import com.example.qq.websocket.db.FriendDatabaseHelper;
 import com.example.qq.pojo.Friend;
 import com.example.qq.websocket.domain.Message;
@@ -39,20 +45,19 @@ import com.example.qq.websocket.webUtils.AddFriendUtil;
 import com.example.qq.websocket.webUtils.GetNowUser;
 import com.example.qq.websocket.webUtils.controller.Callback;
 import com.example.qq.websocket.webUtils.controller.MessageFilter;
-import com.example.qq.websocket.webUtils.controller.WebUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.net.ssl.SSLContext;
+import java.util.Objects;
 
 import okhttp3.Response;
 import okhttp3.WebSocket;
@@ -69,9 +74,14 @@ public class FrameActivity extends BaseActivity {
     private String currentUsername;
     private MessageFilter messageFilter;
     private ImageView imageViewPlus;
-    private RecyclerView friendRecyclerView;
     private String token;
+    private ImageButton btnMsg,btnFri,btnAut;
+    private FriendsRecyclerViewFragment friendsFragment;
+    private TextView textViewNickname;
+    private ImageView imageViewAvatar;
 
+    private DynamicFragment dynamicFragment; // 声明 dynamicFragment
+    private ContactFragment contactFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,44 +93,68 @@ public class FrameActivity extends BaseActivity {
         initializeWebSocketClient();
         initializeUI();
         initializeDatabase();
-        loadFriends();
-        setupRecyclerView();
 
-        setupBottomNavigation();
+        // 初始化 Fragment
+        initFragments();
+        // 默认加载 FriendsRecyclerViewFragment
+        loadFriendListFragment();
+
+        btnMsg = findViewById(R.id.btnMsg);
+        btnFri = findViewById(R.id.btnFri);
+        btnAut = findViewById(R.id.btnAut);
+
+        btnMsg.setOnClickListener(v -> {
+            // 切换到 FriendsRecyclerViewFragment
+            loadFriendListFragment();
+            // 更新 ImageButton 的图片资源
+            btnMsg.setImageResource(R.drawable.p32);
+            // 重置其他 ImageButton 的图片资源
+            btnFri.setImageResource(R.drawable.p3);
+            btnAut.setImageResource(R.drawable.p4);
+        });
+
+        btnFri.setOnClickListener(v -> {
+            // 切换到 ContactFragment
+            loadContactFragment();
+            // 更新 ImageButton 的图片资源
+            btnFri.setImageResource(R.drawable.p5);
+            // 重置其他 ImageButton 的图片资源
+            btnMsg.setImageResource(R.drawable.p2);
+            btnAut.setImageResource(R.drawable.p4);
+        });
+
+        btnAut.setOnClickListener(v -> {
+            // 切换到 DynamicFragment
+            loadDynamicFragment();
+            // 更新 ImageButton 的图片资源
+            btnAut.setImageResource(R.drawable.p6);
+            // 重置其他 ImageButton 的图片资源
+            btnMsg.setImageResource(R.drawable.p2);
+            btnFri.setImageResource(R.drawable.p3);
+        });
     }
 
-    private void setupBottomNavigation() {
-        ImageView imageViewMessage = findViewById(R.id.imageViewMessage);
-        ImageView imageViewContact = findViewById(R.id.imageViewContact);
-        ImageView imageViewDynamic = findViewById(R.id.imageViewDynamic);
-
-        imageViewMessage.setOnClickListener(this::onMessageClick);
-        imageViewContact.setOnClickListener(this::onContactClick);
-        imageViewDynamic.setOnClickListener(this::onDynamicClick);
-    }
-
-    private void onMessageClick(View view) {
-        MessageFragment messageFragment = new MessageFragment();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, messageFragment)
-                .commit();
-    }
-
-    private void onContactClick(View view) {
-        ContactFragment contactFragment = new ContactFragment();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, contactFragment)
-                .commit();
-    }
-
-    private void onDynamicClick(View view) {
-        DynamicFragment dynamicFragment = new DynamicFragment();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, dynamicFragment)
-                .commit();
+    private void initFragments() {
+        friendsFragment = new FriendsRecyclerViewFragment(friends);
+        dynamicFragment = new DynamicFragment();
+        contactFragment = new ContactFragment();
     }
 
 
+
+    private void loadContactFragment() {
+        showFragment(contactFragment);
+    }
+
+    private void loadDynamicFragment() {
+        showFragment(dynamicFragment);
+    }
+
+    private void showFragment(Fragment fragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.commit();
+    }
 
     private void initializeWebSocketClient() {
         webClient = WebClient.getInstance();
@@ -131,8 +165,6 @@ public class FrameActivity extends BaseActivity {
         setupWebSocketListener();
         connectWebSocket();
     }
-
-
 
     private void setupWebSocketListener() {
         webSocketListener = new WebSocketListener() {
@@ -151,8 +183,6 @@ public class FrameActivity extends BaseActivity {
                 t.printStackTrace();
             }
 
-
-
             @Override
             public void onClosing(@NonNull WebSocket webSocket, int code, String reason) {
                 System.out.println("WebSocket closed: " + reason);
@@ -168,12 +198,50 @@ public class FrameActivity extends BaseActivity {
     }
 
     private void initializeUI() {
-        LayoutInflater factory = LayoutInflater.from(FrameActivity.this);
-        View layout = factory.inflate(R.layout.fragment_message, null);
-        friendRecyclerView = (RecyclerView) layout.findViewById(R.id.friendRecyclerView);
+        imageViewAvatar = findViewById(R.id.imageViewAvatar);
+        textViewNickname = findViewById(R.id.textViewNickname);
+        getUserInfo(token, currentUsername, new Callback() {
+            @Override
+            public void onResult(WebResult<Map<String, Object>> result) throws JSONException {
+                if (result.getCode() == 200) {
+                    Map<String, Object> data = result.getData();
+                    Map<String,String> userInfo = (Map<String,String>) data.get("user");
 
-        imageViewPlus = (ImageView) layout.findViewById(R.id.imageViewPlus);
-        friendRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+                    String username = userInfo.get("username");
+                    String nicknametemp = userInfo.get("nickname");
+                    String avatar = userInfo.get("avatar");
+
+                    User user = new User(username, nicknametemp, avatar);
+                    getNowUser.rememberUser(user);
+                    String nickname = userInfo.get("nickname");
+                    if (nickname == null) {
+                        nickname = currentUsername;
+                    }
+                    textViewNickname.setText(nickname);
+
+                    // 获取 Base64 编码的头像
+                    String avatarBase64 = userInfo.get("avatar");
+                    if (avatarBase64 != null && !avatarBase64.isEmpty()) {
+                        // 解码 Base64 字符串为字节数组
+                        byte[] avatarBytes = Base64.decode(avatarBase64, Base64.DEFAULT);
+                        if (avatarBytes != null) {
+                            // 将字节数组转换为 Bitmap
+                            Bitmap avatarBitmap = BitmapFactory.decodeByteArray(avatarBytes, 0, avatarBytes.length);
+                            if (avatarBitmap != null) {
+                                imageViewAvatar.setImageBitmap(avatarBitmap);
+                            } else {
+                                // 如果转换失败，使用默认头像
+                                imageViewAvatar.setImageResource(R.drawable.p14);
+                            }
+                        }
+                    } else {
+                        // 如果没有头像，使用默认头像
+                        imageViewAvatar.setImageResource(R.drawable.p14);
+                    }
+                }
+            }
+        });
+        imageViewPlus = findViewById(R.id.imageViewPlus);
         imageViewPlus.setOnClickListener(this::showPopupMenu);
     }
 
@@ -181,26 +249,51 @@ public class FrameActivity extends BaseActivity {
         dbHelper = new FriendDatabaseHelper(this);
     }
 
+    public Integer byteArrayToInteger(byte[] avatar) {
+        if (avatar == null || avatar.length < 4) {
+            return 0; // 如果数组为空或长度小于4，返回默认值0
+        }
+
+        return ((avatar[0] & 0xFF) << 24) |
+                ((avatar[1] & 0xFF) << 16) |
+                ((avatar[2] & 0xFF) << 8) |
+                (avatar[3] & 0xFF);
+    }
+
+    private void loadFriendListFragment() {
+        loadFriends();
+        // 检查 Fragment 是否已经加载
+        friendsFragment = (FriendsRecyclerViewFragment) getSupportFragmentManager()
+                .findFragmentByTag(FriendsRecyclerViewFragment.class.getSimpleName());
+
+        if (friendsFragment == null) {
+            // 如果没有加载过，创建一个新的 Fragment
+            friendsFragment = new FriendsRecyclerViewFragment(friends);
+            // 开始 Fragment 事务
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            // 替换或添加 Fragment 到 FrameLayout 中
+            transaction.replace(R.id.fragment_container, friendsFragment, FriendsRecyclerViewFragment.class.getSimpleName());
+            // 提交事务
+            transaction.commit();
+        } else {
+            // 如果已经加载过，直接更新数据
+            friendsFragment.updateFriends(friends);
+        }
+    }
+
+
     private void loadFriends() {
         currentUsername = getNowUser.getCurrentUsername();
         SharedPreferences sharedPreferences = getSharedPreferences("MyRefs", MODE_PRIVATE);
         token = sharedPreferences.getString("token", "");
-
-//        // 从数据库加载好友列表
-//        List<String> friendUsernames = dbHelper.getFriendsForUser(currentUsername);
-//        for (String friendUsername : friendUsernames) {
-//            Friend friend = new Friend();
-//            friend.setUsername(friendUsername);
-//            friend.setNickname(friendUsername);  // 假设昵称与用户名相同
-//            friends.add(friend);
-//        }
 
         // 从网络加载好友列表
         fetchFriendListFromServer();
     }
 
     private void fetchFriendListFromServer() {
-        getFriendList(token, currentUsername, new Callback() {
+        getSpaFriendList(token, currentUsername, new Callback() {
+            @SuppressLint("SimpleDateFormat")
             @Override
             public void onResult(WebResult<Map<String, Object>> result) throws JSONException {
                 if (result.getCode() == 200) {
@@ -209,34 +302,39 @@ public class FrameActivity extends BaseActivity {
 
                     if (friendsObj instanceof JSONArray) {
                         JSONArray friendsArray = (JSONArray) friendsObj;
-                        List<Map<String, Object>> friendDataList = new ArrayList<>();
+                        List<Friend> friendDataList = new ArrayList<>();
 
-                        // 将 JSONArray 转换为 List<Map<String, Object>> 以便后续处理
+                        // 解析 JSON 数据并创建 Friend 对象
                         for (int i = 0; i < friendsArray.length(); i++) {
                             JSONObject friendJson = friendsArray.getJSONObject(i);
-                            Map<String, Object> friendMap = new HashMap<>();
-                            Iterator<String> keys = friendJson.keys();
-                            while (keys.hasNext()) {
-                                String key = keys.next();
-                                friendMap.put(key, friendJson.get(key));
+                            Friend friend = new Friend();
+
+                            // 设置好友的各项属性
+                            friend.setUsername(friendJson.optString("username"));
+                            String nickname = friendJson.optString("nickname");
+                            if (nickname.equals("null")) {
+                                nickname = friendJson.optString("username");  // 如果昵称为空，使用用户名
                             }
-                            friendDataList.add(friendMap);
+                            friend.setNickname(nickname);
+                            String content = friendJson.optString("content");
+                            if (content.equals("null")) {
+                                content = "";  // 如果内容为空，使用默认签名
+                            }
+                            friend.setContent(content);
+                            Date time = formatToHHMM(parseTime(friendJson.optString("timestamp")));
+                            friend.setTime(time); // yyyy-MM-dd HH:mm:ss
+                            String avatarBase = friendJson.optString("avatar");
+                            friend.setAvatar(avatarBase);
+                            // 将 Friend 对象添加到列表
+                            friendDataList.add(friend);
                         }
 
-                        // 从网络数据更新好友列表
+                        // 更新好友列表
                         updateFriendListWithNetworkData(friendDataList);
                     }
                 }
             }
         });
-    }
-
-
-    private void setupRecyclerView() {
-        friendAdapter = new FriendAdapter(FrameActivity.this, friends);
-        friendRecyclerView.setAdapter(friendAdapter);
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(friendAdapter.getItemTouchHelperCallback());
-        itemTouchHelper.attachToRecyclerView(friendRecyclerView);
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -281,12 +379,9 @@ public class FrameActivity extends BaseActivity {
         runOnUiThread(() -> {
             showToast(message);  // 显示添加成功的消息
 
-            // 更新数据库，双向添加好友
-//            dbHelper.addFriend(currentUsername, user);  // 将目标好友添加到发起者的好友列表中
-//            dbHelper.addFriend(user, currentUsername);  // 将发起者添加到目标好友的好友列表中
-
             // 更新好友列表显示
-            fetchFriendListFromServer();
+            loadFriends();
+//            fetchFriendListFromServer();
         });
     }
 
@@ -297,28 +392,37 @@ public class FrameActivity extends BaseActivity {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private void updateFriendListWithNetworkData(List<Map<String, Object>> friendDataList) {
-        friends.clear();
-        // 处理从网络请求中获取到的好友数据
-        List<String> friendIds = new ArrayList<>();
-        for (Map<String, Object> friend : friendDataList) {
-            Object friendId = friend.get("friendId");
-            if (friendId != null) {
-                friendIds.add(String.valueOf(friendId));
+    private void updateFriendListWithNetworkData(List<Friend> friendDataList) {
+        friends.clear();  // 清空旧的数据
+        friends.addAll(friendDataList);  // 添加新获取的好友数据
+
+        // 更新适配器
+        if (friendAdapter == null) {
+            initFriendAdapter(friends);  // 如果适配器为空，初始化适配器
+        } else {
+            friendAdapter.notifyDataSetChanged();  // 如果适配器已经存在，刷新数据
+        }
+
+        // 确保在 UI 线程上更新 UI
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (friendsFragment != null) {
+                    friendsFragment.updateFriends(friends);  // 更新好友列表显示
+                } else {
+                    System.out.println("friendsFragment is not null");
+                }
             }
-        }
-
-        // 更新好友列表
-        for (String friendId : friendIds) {
-            Friend friend = new Friend();
-            friend.setUsername(friendId);  // 假设 friendId 可以作为用户名
-            friend.setNickname(friendId);  // 假设昵称与用户名相同
-            friends.add(friend);
-        }
-
-        // 通知适配器更新数据
-        friendAdapter.notifyDataSetChanged();
+        });
     }
+
+
+    // 更新
+    private void initFriendAdapter(List<Friend> friends) {
+        // 初始化FriendAdapter
+        friendAdapter = new FriendAdapter(this, friends);
+    }
+
     private void acceptFriendRequest(String username) {
         String token = getSharedPreferences("MyRefs", MODE_PRIVATE).getString("token", "");
         notifySender(currentUsername, username, token);
@@ -399,7 +503,13 @@ public class FrameActivity extends BaseActivity {
             webSocket.close(1000, "Activity destroyed");
         }
     }
-
-
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences sharedPreferences = getSharedPreferences("MyRefs", MODE_PRIVATE);
+        boolean fromChatActivity = sharedPreferences.getBoolean("fromChatActivity", false);
+        if (fromChatActivity) {
+            loadFriends(); // 刷新好友列表
+            sharedPreferences.edit().remove("fromChatActivity").apply(); // 清除标志
+        }}
 }

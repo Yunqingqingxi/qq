@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
-
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
@@ -18,11 +14,11 @@
             android:id="@+id/imageViewAvatar"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:background="@drawable/circle_border"
-            android:color="@android:color/transparent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/p11"
-            tools:ignore="MissingConstraints" />
+            android:layout_margin="10dp"
+            android:src="@drawable/p29"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <ImageView
             android:id="@+id/imageViewPlus"
             android:layout_width="60dp"
@@ -55,5 +51,4 @@
             app:layout_constraintBottom_toBottomOf="@id/imageViewAvatar"
             app:layout_constraintStart_toEndOf="@id/imageViewAvatar" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

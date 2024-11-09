@@ -5,6 +5,7 @@ import android.util.Log;
 import com.example.qq.websocket.webResult.WebResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -21,6 +22,33 @@ public class JsonUtil {
     }
 
     // 解析格式为：{"code":xxx,"msg":"xxx", "data":{...}}
+//    private void parseJson(String json) {
+//        try {
+//            JSONObject jsonObject = new JSONObject(json);
+//            Integer code = jsonObject.getInt("code");
+//            String message = jsonObject.getString("msg");
+//
+//            // 处理 data 字段
+//            Map<String, Object> dataMap = new HashMap<>();
+//            if (!jsonObject.isNull("data")) {
+//                JSONObject dataObject = jsonObject.getJSONObject("data");
+//                // 将 token 提取到 dataMap 中
+//                if (dataObject.has("token")) {
+//                    dataMap.put("token", dataObject.getString("token"));
+//                }
+//                // 将其他数据提取到 dataMap 中 , 例如data":{"friends":[{"id":20,"userId":1,"friendId":2},{"id":25,"userId":1,"friendId":123456}]}
+//                if (dataObject.has("friends")) {
+//                    dataMap.put("friends", dataObject.getJSONArray("friends"));
+//                }
+//            }
+//
+//            // 创建 WebResult 实例
+//            this.webResult = new WebResult<>(code, message, dataMap);
+//        } catch (Exception e) {
+//            throw new RuntimeException("JSON 解析失败: " + e.getMessage(), e);
+//        }
+//    }
+
     private void parseJson(String json) {
         try {
             JSONObject jsonObject = new JSONObject(json);
@@ -30,14 +58,21 @@ public class JsonUtil {
             // 处理 data 字段
             Map<String, Object> dataMap = new HashMap<>();
             if (!jsonObject.isNull("data")) {
-                JSONObject dataObject = jsonObject.getJSONObject("data");
-                // 将 token 提取到 dataMap 中
-                if (dataObject.has("token")) {
-                    dataMap.put("token", dataObject.getString("token"));
-                }
-                // 将其他数据提取到 dataMap 中 , 例如data":{"friends":[{"id":20,"userId":1,"friendId":2},{"id":25,"userId":1,"friendId":123456}]}
-                if (dataObject.has("friends")) {
-                    dataMap.put("friends", dataObject.getJSONArray("friends"));
+                Object dataObject = jsonObject.get("data");
+
+                // 判断 data 是对象还是数组
+                if (dataObject instanceof JSONObject) {
+                    // 如果是对象，处理 token 和 friends
+                    JSONObject dataJsonObject = (JSONObject) dataObject;
+                    if (dataJsonObject.has("token")) {
+                        dataMap.put("token", dataJsonObject.getString("token"));
+                    }
+                    if (dataJsonObject.has("friends")) {
+                        dataMap.put("friends", dataJsonObject.getJSONArray("friends"));
+                    }
+                } else if (dataObject instanceof JSONArray) {
+                    // 如果是数组，直接放入
+                    dataMap.put("friends", (JSONArray) dataObject);
                 }
             }
 
@@ -47,6 +82,8 @@ public class JsonUtil {
             throw new RuntimeException("JSON 解析失败: " + e.getMessage(), e);
         }
     }
+
+
 
     public static Map<String, Object> parseMessage(String json) {
         Map<String, Object> map = new HashMap<>();
@@ -83,6 +120,23 @@ public class JsonUtil {
         ObjectMapper objectMapper = new ObjectMapper();
         // 使用 ObjectMapper 将 JSON 字符串转换为 Map
         return objectMapper.readValue(jsonString, Map.class);
+    }
+
+    //
+    public static Map<String, Object> parseToFriend(String jsonString){
+        Map<String, Object> map = new HashMap<>();
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            map.put("username", jsonObject.getString("username"));
+            map.put("nickname", jsonObject.getInt("nickname"));
+            map.put("content", jsonObject.getString("content"));
+            map.put("timestamp", jsonObject.getString("timestamp"));
+            map.put("avatarResId", jsonObject.getString("avatarResId"));
+            return map;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return map;
     }
 
     public WebResult<Map<String, Object>> getWebResult() {

@@ -2,7 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- 包含昵称、退出按钮、通话和菜单图标的顶部导航栏 -->
     <include
@@ -22,32 +23,56 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- 输入区域 -->
+
     <LinearLayout
         android:id="@+id/inputArea"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="8dp"
+        android:background="#F5F5F5"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- ImageView 作为第一个组件 -->
+        <ImageView
+            android:id="@+id/inputImageView"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/p40" /> <!-- 替换为你的图片资源 -->
+
+        <!-- EditText 作为输入框 -->
+        <!-- EditText 作为输入框 -->
         <EditText
             android:id="@+id/inputMessage"
             android:layout_width="0dp"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@drawable/edittext_input_background"
             android:hint="输入消息"
             android:inputType="text"
-            android:padding="8dp" />
+            android:padding="8dp"
+            tools:ignore="TouchTargetSizeCheck" />
 
-        <Button
+
+
+        <ImageView
+            android:id="@+id/inputImageView2"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/p41" />
+        <!-- TextView 作为发送按钮 -->
+        <TextView
             android:id="@+id/sendButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="60dp"
+            android:layout_height="40dp"
             android:text="发送"
-            android:padding="8dp" />
+            android:textColor="#FFFFFF"
+            android:gravity="center"
+            android:background="@drawable/send_button_background"
+            android:padding="10dp"
+            tools:ignore="SpeakableTextPresentCheck" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

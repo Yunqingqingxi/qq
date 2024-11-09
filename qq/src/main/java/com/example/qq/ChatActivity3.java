@@ -5,15 +5,12 @@ import static com.example.qq.websocket.webUtils.controller.WebUtil.getChatInfo;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.saveChatInfo;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,27 +18,25 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.qq.adapter.ChatMessageAdapter;
 import com.example.qq.pojo.ChatMessage;
-import com.example.qq.websocket.db.ChatDatabaseHelper;
+import com.example.qq.pojo.User;
 import com.example.qq.websocket.domain.Message;
 import com.example.qq.websocket.web.WebClient;
 import com.example.qq.websocket.webResult.WebResult;
+import com.example.qq.websocket.webUtils.GetNowUser;
 import com.example.qq.websocket.webUtils.controller.Callback;
 import com.example.qq.websocket.webUtils.controller.MessageFilter;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import okhttp3.Response;
@@ -53,8 +48,9 @@ public class ChatActivity3 extends BaseActivity {
     private EditText inputMessage;
     private static String currentUsername;
     private String friendId;
+    private String friendNickname;
     private RecyclerView recyclerView;
-    private ChatDatabaseHelper dbHelper;
+//    private ChatDatabaseHelper dbHelper;
     private ChatMessageAdapter messageAdapter;
     private ArrayList<ChatMessage> messageList;
     private WebClient webClient;
@@ -62,6 +58,7 @@ public class ChatActivity3 extends BaseActivity {
     private MessageFilter messageFilter;
     private WebSocketListener webSocketListener;
     private String token;
+    private GetNowUser getNowUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,15 +141,15 @@ public class ChatActivity3 extends BaseActivity {
                         targetname,                 // 接收者
                         messageContent,             // 消息内容
                         getCurrentTime(),           // 消息发送时间
-                        R.drawable.p9               // 默认头像
+                        null             // 默认头像
                 );
 
                 // 使用 runOnUiThread() 将更新 UI 的操作放到主线程中
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        // 将消息添加到数据库
-                        dbHelper.insertMessage(chatMessage);
+//                        // 将消息添加到数据库
+//                        dbHelper.insertMessage(chatMessage);
 
                         // 添加消息到消息列表
                         messageList.add(chatMessage);
@@ -175,12 +172,13 @@ public class ChatActivity3 extends BaseActivity {
 
     private void initialize() {
         friendId = getIntent().getStringExtra("friendId");
+        friendNickname = getIntent().getStringExtra("friendNickname");
         currentUsername = getSharedPreferences("MyRefs", MODE_PRIVATE).getString("current_username", "");
-        dbHelper = new ChatDatabaseHelper(this);
+//        dbHelper = new ChatDatabaseHelper(this);
         messageList = new ArrayList<>();
         inputMessage = findViewById(R.id.inputMessage);
         TextView nicknameTextView = findViewById(R.id.nickname);
-        nicknameTextView.setText(friendId); // 显示好友昵称
+        nicknameTextView.setText(friendNickname); // 显示好友昵称
     }
 
     private void setupRecyclerView() {
@@ -214,7 +212,7 @@ public class ChatActivity3 extends BaseActivity {
                                 String receiver = (String) messageData.get("receiver");
                                 String content = (String) messageData.get("content");
                                 String timestamp = (String) messageData.get("timestamp");
-                                int avatarResId = getAvatarResourceId(sender);  // 根据发送者获取头像资源ID
+                                String avatarResId =(String) messageData.get("avatarResId");  // 根据发送者获取头像资源ID
 
                                 // 格式化时间戳为需要的格式
                                 String formattedTime = formatTimestamp(timestamp);  // 你可以定义这个方法来格式化时间
@@ -231,7 +229,7 @@ public class ChatActivity3 extends BaseActivity {
                                 String receiver = (String) messageData.get("receiver");
                                 String content = (String) messageData.get("content");
                                 String timestamp = (String) messageData.get("timestamp");
-                                int avatarResId = getAvatarResourceId(receiver);  // 根据接收者获取头像资源ID
+                                String avatarResId =(String) messageData.get("avatarResId"); // 根据接收者获取头像资源ID
 
                                 // 格式化时间戳为需要的格式
                                 String formattedTime = formatTimestamp(timestamp);  // 你可以定义这个方法来格式化时间
@@ -242,7 +240,7 @@ public class ChatActivity3 extends BaseActivity {
                         }
 
                         // 按照时间戳进行排序（升序），确保从最早的消息开始
-                        Collections.sort(messageList, new Comparator<ChatMessage>() {
+                        messageList.sort(new Comparator<ChatMessage>() {
                             @Override
                             public int compare(ChatMessage o1, ChatMessage o2) {
                                 // 假设 timestamp 是 ISO 8601 格式的字符串，直接进行比较
@@ -250,8 +248,13 @@ public class ChatActivity3 extends BaseActivity {
                             }
                         });
 
-                        // 通知适配器更新界面
-                        messageAdapter.notifyDataSetChanged();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                messageAdapter.notifyDataSetChanged();
+                                recyclerView.scrollToPosition(messageList.size() - 1);  // 滚动到最新的消息
+                            }
+                        });
                     }
                 } else {
                     // 处理查询失败的情况
@@ -266,9 +269,9 @@ public class ChatActivity3 extends BaseActivity {
     private String formatTimestamp(String timestamp) {
         // 假设时间戳是字符串格式的 ISO 8601 时间，使用 SimpleDateFormat 来格式化
         try {
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat originalFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat originalFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
             Date date = originalFormat.parse(timestamp);
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat targetFormat = new SimpleDateFormat("HH:mm");
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat targetFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             return targetFormat.format(date);
         } catch (ParseException e) {
             e.printStackTrace();
@@ -276,17 +279,20 @@ public class ChatActivity3 extends BaseActivity {
         }
     }
 
+
+
     private int getAvatarResourceId(String username) {
         return R.drawable.p9; // 目前只使用一个默认头像
     }
 
     private String getCurrentTime() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return LocalDateTime.now().format(formatter);
     }
 
+
     private void setupListeners() {
-        findViewById(R.id.backButton).setOnClickListener(v -> finish()); // 返回按钮
+        findViewById(R.id.backButton).setOnClickListener(v -> finish());  // 关闭当前 ChatActivity
         findViewById(R.id.sendButton).setOnClickListener(v -> sendMessage()); // 发送按钮
     }
 
@@ -299,12 +305,15 @@ public class ChatActivity3 extends BaseActivity {
                 return;
             }
 
+            getNowUser = new GetNowUser(this);
+            User user = getNowUser.getRememberedUser();
+
             // 创建消息对象
-            ChatMessage message = new ChatMessage(currentUsername, friendId, messageContent, getCurrentTime(), R.drawable.p9);
+            ChatMessage message = new ChatMessage(currentUsername, friendId, messageContent, getCurrentTime(),user.getAvatar());
             messageList.add(message);
 
             // 保存消息到服务器
-            saveChatInfo(token, currentUsername, friendId, messageContent, getAvatarResourceId(currentUsername), new Callback() {
+            saveChatInfo(token, currentUsername, friendId, messageContent, new Callback() {
                 @Override
                 public void onResult(WebResult<Map<String, Object>> result) throws JSONException {
                     if (result.getCode() == 200) {
@@ -329,18 +338,12 @@ public class ChatActivity3 extends BaseActivity {
             }
         }
     }
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SharedPreferences sharedPreferences = getSharedPreferences("MyRefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("fromChatActivity", true);
+        editor.apply();
     }
-
-//    private void insertMessageToDatabase(String sender, String receiver, String message) {
-//        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
-//            db.execSQL("INSERT INTO " + ChatDatabaseHelper.TABLE_MESSAGES +
-//                            " (" + ChatDatabaseHelper.COLUMN_MESSAGE_SENDER + ", " +
-//                            ChatDatabaseHelper.COLUMN_MESSAGE_RECEIVER + ", " +
-//                            ChatDatabaseHelper.COLUMN_MESSAGE_CONTENT + ") VALUES (?, ?, ?)",
-//                    new Object[]{sender, receiver, message}); // 使用参数化查询避免 SQL 注入
-//            Log.d("ChatActivity3", "Message inserted: " + sender + " -> " + receiver + ": " + message);
-//        } catch (Exception e) {
-//            Log.e("ChatActivity3", "Error inserting message", e);
-//        }
-//    }
+    }

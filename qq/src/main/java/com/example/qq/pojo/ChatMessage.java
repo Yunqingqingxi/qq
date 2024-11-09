@@ -2,10 +2,14 @@ package com.example.qq.pojo;
 
 import android.annotation.SuppressLint;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * ChatMessage 类，表示聊天消息的基本信息。
@@ -15,7 +19,7 @@ public class ChatMessage {
     private final LocalDateTime timestamp;    // 消息时间戳
     private final String sender;              // 发送者
     private final String receiver;            // 接收者
-    private final int avatarResId;            // 头像资源ID
+    private final String avatarResId;            // 头像资源ID
 
     /**
      * ChatMessage 构造函数
@@ -26,7 +30,7 @@ public class ChatMessage {
      * @param receiver 接收者
      * @param avatarResId 头像资源ID
      */
-    public ChatMessage( String sender, String receiver, String content, String timestampStr ,int avatarResId) {
+    public ChatMessage( String sender, String receiver, String content, String timestampStr ,String avatarResId) {
         this.content = content;
         this.timestamp = parseTimestamp(timestampStr);
         this.sender = sender;
@@ -69,22 +73,52 @@ public class ChatMessage {
         return receiver;
     }
 
-    public int getAvatarResId() {
+    public String getAvatarResId() {
         return avatarResId;
     }
 
     // Private 方法
-    private LocalDateTime parseTimestamp(String timestampStr) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-        // 解析时间部分
-        LocalTime time = LocalTime.parse(timestampStr, formatter);
-        // 使用当前日期并将时间部分设置为解析的时间
-        return LocalDate.now().atTime(time);
+    private LocalDateTime parseTimestamp(String timestamp) {
+        try {
+            // 检查是否为ISO 8601格式
+            if (timestamp.contains("T")) {
+                // 按ISO 8601格式解析
+                DateTimeFormatter isoFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+                return LocalDateTime.parse(timestamp, isoFormatter);
+            } else {
+                // 按yyyy-MM-dd HH:mm:ss格式解析
+                DateTimeFormatter defaultFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                return LocalDateTime.parse(timestamp, defaultFormatter);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null; // 如果解析失败，返回null
+        }
     }
 
+
+
     private String formatTimestamp(LocalDateTime timestamp) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return timestamp.format(formatter);
+    }
+
+    // 将时间戳字符串转换为完整的日期时间格式
+    private String formatTimestamp(String timestamp) {
+        // 定义目标格式
+        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+        try {
+            // 解析输入时间戳
+            Date date = inputFormat.parse(timestamp);
+            // 返回格式化后的日期时间字符串
+            return outputFormat.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            // 返回原始时间戳（如果解析失败）
+            return timestamp;
+        }
     }
 
 

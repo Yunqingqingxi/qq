@@ -73,7 +73,7 @@
         android:layout_below="@id/agreeCheckBox"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
-        android:text="忘记密码？点此注册"
+        android:text="没有账号？点此注册"
         android:textSize="14sp"
         android:textColor="@color/normal_text_color"/>
 
