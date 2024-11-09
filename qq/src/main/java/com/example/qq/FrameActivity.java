@@ -8,11 +8,15 @@ import static com.example.qq.util.TimeUtil.parseTime;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.acceptFriend;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.getFriendList;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.getSpaFriendList;
+import static com.example.qq.websocket.webUtils.controller.WebUtil.getUserInfo;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Base64;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
@@ -28,6 +32,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.qq.adapter.FriendAdapter;
 import com.example.qq.fargments.FriendsRecyclerViewFragment;
+import com.example.qq.pojo.User;
 import com.example.qq.websocket.db.FriendDatabaseHelper;
 import com.example.qq.pojo.Friend;
 import com.example.qq.websocket.domain.Message;
@@ -49,6 +54,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import okhttp3.Response;
 import okhttp3.WebSocket;
@@ -148,15 +154,65 @@ public class FrameActivity extends BaseActivity {
 
     private void initializeUI() {
         imageViewAvatar = findViewById(R.id.imageViewAvatar);
-        imageViewAvatar.setImageResource(R.drawable.p3);
         textViewNickname = findViewById(R.id.textViewNickname);
-//        textViewNickname.setText(getNowUser.getCurrentNickname());
+        getUserInfo(token, currentUsername, new Callback() {
+            @Override
+            public void onResult(WebResult<Map<String, Object>> result) throws JSONException {
+                if (result.getCode() == 200) {
+                    Map<String, Object> data = result.getData();
+                    Map<String,String> userInfo = (Map<String,String>) data.get("user");
+
+                    String username = userInfo.get("username");
+                    String nicknametemp = userInfo.get("nickname");
+                    String avatar = userInfo.get("avatar");
+
+                    User user = new User(username, nicknametemp, avatar);
+                    getNowUser.rememberUser(user);
+                    String nickname = userInfo.get("nickname");
+                    if (nickname == null) {
+                        nickname = currentUsername;
+                    }
+                    textViewNickname.setText(nickname);
+
+                    // 获取 Base64 编码的头像
+                    String avatarBase64 = userInfo.get("avatar");
+                    if (avatarBase64 != null && !avatarBase64.isEmpty()) {
+                        // 解码 Base64 字符串为字节数组
+                        byte[] avatarBytes = Base64.decode(avatarBase64, Base64.DEFAULT);
+                        if (avatarBytes != null) {
+                            // 将字节数组转换为 Bitmap
+                            Bitmap avatarBitmap = BitmapFactory.decodeByteArray(avatarBytes, 0, avatarBytes.length);
+                            if (avatarBitmap != null) {
+                                imageViewAvatar.setImageBitmap(avatarBitmap);
+                            } else {
+                                // 如果转换失败，使用默认头像
+                                imageViewAvatar.setImageResource(R.drawable.p14);
+                            }
+                        }
+                    } else {
+                        // 如果没有头像，使用默认头像
+                        imageViewAvatar.setImageResource(R.drawable.p14);
+                    }
+                }
+            }
+        });
         imageViewPlus = findViewById(R.id.imageViewPlus);
         imageViewPlus.setOnClickListener(this::showPopupMenu);
     }
 
     private void initializeDatabase() {
         dbHelper = new FriendDatabaseHelper(this);
+    }
+
+    public Integer byteArrayToInteger(byte[] avatar) {
+        if (avatar == null || avatar.length < 4) {
+            return 0; // 如果数组为空或长度小于4，返回默认值0
+        }
+
+        return ((avatar[0] & 0xFF) << 24) |
+                ((avatar[1] & 0xFF) << 16) |
+                ((avatar[2] & 0xFF) << 8) |
+                (avatar[3] & 0xFF);
     }
 
     private void loadFriendListFragment() {
@@ -220,15 +276,10 @@ public class FrameActivity extends BaseActivity {
                                 content = "";  // 如果内容为空，使用默认签名
                             }
                             friend.setContent(content);
-//                            friend.setTime(parseISO8601(friendJson.optString("timestamp")));
                             Date time = formatToHHMM(parseTime(friendJson.optString("timestamp")));
                             friend.setTime(time); // yyyy-MM-dd HH:mm:ss
-                            int avatarResId = friendJson.optInt("avatarResId");
-                            if(avatarResId == 0){
-                                avatarResId = R.drawable.p9;  // 如果没有头像资源，使用默认头像
-                            }
-                            friend.setAvatar(avatarResId);  // 设置默认头像资源
-
+                            String avatarBase = friendJson.optString("avatar");
+                            friend.setAvatar(avatarBase);
                             // 将 Friend 对象添加到列表
                             friendDataList.add(friend);
                         }
@@ -240,8 +291,6 @@ public class FrameActivity extends BaseActivity {
             }
         });
     }
-
-
 
     @SuppressLint("NotifyDataSetChanged")
     private void handleServerMessage(String text) {

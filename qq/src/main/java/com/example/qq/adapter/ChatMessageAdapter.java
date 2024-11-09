@@ -1,6 +1,10 @@
 package com.example.qq.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -76,7 +80,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
 
         public void bind(ChatMessage message, String currentUser) {
             // 根据消息的发送者来判断头像和消息内容应该显示在哪一侧
-             if (message.getSender().equals(currentUser)) {
+            if (message.getSender().equals(currentUser)) {
                 // 发送者的消息，设置右侧布局
                 avatar = itemView.findViewById(R.id.imageViewRight);  // 发送者头像
                 messageText = itemView.findViewById(R.id.messageTextRight);  // 发送消息内容
@@ -87,20 +91,29 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
             }
 
             // 设置头像和消息内容
-            avatar.setImageResource(message.getAvatarResId() != 0 ? message.getAvatarResId() : R.drawable.p9);  // 默认头像
-            messageText.setText(message.getContent());
+            String avatarBase64 = message.getAvatarResId();
+            if (avatarBase64 != null && !avatarBase64.isEmpty()) {
+                // 解码 Base64 字符串为字节数组
+                byte[] avatarBytes = Base64.decode(avatarBase64, Base64.DEFAULT);
+                if (avatarBytes != null) {
+                    // 将字节数组转换为 Bitmap
+                    Bitmap avatarBitmap = BitmapFactory.decodeByteArray(avatarBytes, 0, avatarBytes.length);
+                    if (avatarBitmap != null) {
+                        avatar.setImageBitmap(avatarBitmap);
+                    } else {
+                        // 如果转换失败，使用默认头像
+                        avatar.setImageResource(R.drawable.p14);
+                    }
+                }
+            } else {
+                // 如果没有头像，使用默认头像
+                avatar.setImageResource(R.drawable.p14);
+            }
 
-//            // 为每一项消息设置点击事件
-//            itemView.setOnClickListener(v -> {
-//                int position = getBindingAdapterPosition();
-//                if (position != RecyclerView.NO_POSITION) {
-//                    ChatMessage selectedMessage = messages.get(position);
-//                    Intent intent = new Intent(context, ChatActivity3.class);
-//                    intent.putExtra("nickname", selectedMessage.getSender());  // 传递消息发送者
-//                    intent.putExtra("message", selectedMessage.getContent());  // 传递消息内容
-//                    context.startActivity(intent);
-//                }
-//            });
+
+            // 设置消息内容
+            messageText.setText(message.getContent());
         }
+
     }
 }

@@ -19,7 +19,7 @@ public class ChatMessage {
     private final LocalDateTime timestamp;    // 消息时间戳
     private final String sender;              // 发送者
     private final String receiver;            // 接收者
-    private final int avatarResId;            // 头像资源ID
+    private final String avatarResId;            // 头像资源ID
 
     /**
      * ChatMessage 构造函数
@@ -30,7 +30,7 @@ public class ChatMessage {
      * @param receiver 接收者
      * @param avatarResId 头像资源ID
      */
-    public ChatMessage( String sender, String receiver, String content, String timestampStr ,int avatarResId) {
+    public ChatMessage( String sender, String receiver, String content, String timestampStr ,String avatarResId) {
         this.content = content;
         this.timestamp = parseTimestamp(timestampStr);
         this.sender = sender;
@@ -73,7 +73,7 @@ public class ChatMessage {
         return receiver;
     }
 
-    public int getAvatarResId() {
+    public String getAvatarResId() {
         return avatarResId;
     }
 

@@ -18,7 +18,7 @@
       </SelectionState>
       <SelectionState runConfigName="qq">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-11-08T16:19:31.028633700Z">
+        <DropdownSelection timestamp="2024-11-09T05:58:02.820931900Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=AWMCUT1514012920" />

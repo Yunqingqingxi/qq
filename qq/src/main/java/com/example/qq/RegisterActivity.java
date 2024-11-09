@@ -53,6 +53,7 @@ public class RegisterActivity extends AppCompatActivity {
                             @Override
                             public void onResult(WebResult<Map<String, Object>> result) throws JSONException {
                                 if (result.getCode() == 200) {
+
                                     Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                                     // 将account传递给LoginActivity中的qqNumberEditText
                                     intent.putExtra("account", account);

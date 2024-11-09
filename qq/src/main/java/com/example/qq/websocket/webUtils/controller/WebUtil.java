@@ -2,6 +2,7 @@ package com.example.qq.websocket.webUtils.controller;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.example.qq.util.JsonUtil;
 import com.example.qq.websocket.webResult.WebResult;
@@ -48,6 +49,7 @@ public class WebUtil {
         // 调用封装的 postConnect 方法
         String response = Connect.postConnect(urlString, jsonInputString);
         System.out.println("Response: " + response);
+        Log.e("Response",response);
 
         // 处理响应结果
         WebResult<Map<String, Object>> result;
@@ -257,9 +259,9 @@ public class WebUtil {
         }
     }
     // 存储聊天信息
-public static void saveChatInfo(String token, String sender, String receiver, String message,int avatar , Callback callback) {
+public static void saveChatInfo(String token, String sender, String receiver, String content , Callback callback) {
     executorService.execute(() -> {
-        WebResult<Map<String, Object>> result = performSaveChatInfo(token, sender, receiver, message,avatar);
+        WebResult<Map<String, Object>> result = performSaveChatInfo(token, sender, receiver, content);
         // 切换到主线程处理结果
         new Handler(Looper.getMainLooper()).post(() -> {
             if (callback != null) {
@@ -272,11 +274,11 @@ public static void saveChatInfo(String token, String sender, String receiver, St
         });
     });
     }
-    private static WebResult<Map<String, Object>> performSaveChatInfo(String token, String sender, String receiver, String message,int avatar) {
+    private static WebResult<Map<String, Object>> performSaveChatInfo(String token, String sender, String receiver, String content) {
         // 使用 String.format 代替字符串拼接
         String urlString = String.format("%s/addmessage", url);
         // 将数据封装为json
-        String jsonInputString = "{\"sender\":\"" + sender + "\",\"receiver\":\"" + receiver + "\",\"content\":\"" + message + "\",\"avatar\":\"" + avatar + "\"}";
+        String jsonInputString = "{\"sender\":\"" + sender + "\",\"receiver\":\"" + receiver + "\",\"content\":\"" + content + "\"}";
 
 
         // 调用封装的 postConnect 方法

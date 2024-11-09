@@ -63,25 +63,13 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String qqNumber = qqNumberEditText.getText().toString();
                 String qqPassword = qqPasswordEditText.getText().toString();
-
                 if (!qqNumber.isEmpty() && !qqPassword.isEmpty()) {
-
                     // 验证账号和密码
                     if (!agreeCheckBox.isChecked()) {
                         Toast.makeText(LoginActivity.this, "请先同意用户协议", Toast.LENGTH_SHORT).show();
                         return;
                     }
-
                     startLogin(qqNumber,qqPassword);
-
-//                    if (userDAO.validateUser(qqNumber, qqPassword)) {
-//                        // 登录成功
-//                        Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
-//                        // 这里可以添加登录成功后的操作，比如跳转到主界面
-//                    } else {
-//                        // 登录失败
-//                        Toast.makeText(LoginActivity.this, "账号或密码错误", Toast.LENGTH_SHORT).show();
-//                    }
                 } else {
                     // 提示用户输入账号和密码
                     Toast.makeText(LoginActivity.this, "请输入账号和密码", Toast.LENGTH_SHORT).show();

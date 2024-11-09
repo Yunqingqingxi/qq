@@ -5,6 +5,9 @@ import static com.example.qq.util.TimeUtil.formatTime;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -141,6 +144,8 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
                 if (position != RecyclerView.NO_POSITION) {
                     Friend friend = friendList.get(position);
                     Intent intent = new Intent(context, ChatActivity3.class); // 替换为 ChatActivity 的类名
+//                    intent.putExtra("userAvatar",);
+                    intent.putExtra("friendAvatar", friend.getAvatar()); // 传递好友头像
                     intent.putExtra("friendNickname", friend.getNickname()); // 传递好友昵称
                     intent.putExtra("friendId", friend.getUsername()); // 传递好友 ID（假设你有这个字段）
                     context.startActivity(intent);
@@ -149,10 +154,30 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
         }
 
         public void bind(Friend friend) {
-            imageViewAvatar.setImageResource(friend.getAvatar());
+
+            String avatarBase64 = friend.getAvatar();
+            if (avatarBase64 != null && !avatarBase64.isEmpty()) {
+                // 解码 Base64 字符串为字节数组
+                byte[] avatarBytes = Base64.decode(avatarBase64, Base64.DEFAULT);
+                if (avatarBytes != null) {
+                    // 将字节数组转换为 Bitmap
+                    Bitmap avatarBitmap = BitmapFactory.decodeByteArray(avatarBytes, 0, avatarBytes.length);
+                    if (avatarBitmap != null) {
+                        imageViewAvatar.setImageBitmap(avatarBitmap);
+                    } else {
+                        // 如果转换失败，使用默认头像
+                        imageViewAvatar.setImageResource(R.drawable.p14);
+                    }
+                }
+            } else {
+                // 如果没有头像，使用默认头像
+                imageViewAvatar.setImageResource(R.drawable.p14);
+            }
+
             textViewNickname.setText(friend.getNickname());
             textViewMessage.setText(friend.getContent());
             textViewTime.setText(formatTime(friend.getTime()));
+
         }
 
     }
