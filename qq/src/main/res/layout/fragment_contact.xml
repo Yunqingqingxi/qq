@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="#FDFDFD"
     android:orientation="vertical">
-
+    <include layout="@layout/header2"/>
     <!-- 搜索栏 -->
     <EditText
         android:id="@+id/search_bar"

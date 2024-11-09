@@ -28,9 +28,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.qq.adapter.FriendAdapter;
+import com.example.qq.fargments.ContactFragment;
+import com.example.qq.fargments.DynamicFragment;
 import com.example.qq.fargments.FriendsRecyclerViewFragment;
 import com.example.qq.pojo.User;
 import com.example.qq.websocket.db.FriendDatabaseHelper;
@@ -77,6 +80,8 @@ public class FrameActivity extends BaseActivity {
     private TextView textViewNickname;
     private ImageView imageViewAvatar;
 
+    private DynamicFragment dynamicFragment; // 声明 dynamicFragment
+    private ContactFragment contactFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,7 +94,9 @@ public class FrameActivity extends BaseActivity {
         initializeUI();
         initializeDatabase();
 
-        // 加载好友列表Fragment
+        // 初始化 Fragment
+        initFragments();
+        // 默认加载 FriendsRecyclerViewFragment
         loadFriendListFragment();
 
         btnMsg = findViewById(R.id.btnMsg);
@@ -97,18 +104,56 @@ public class FrameActivity extends BaseActivity {
         btnAut = findViewById(R.id.btnAut);
 
         btnMsg.setOnClickListener(v -> {
-            // 点击消息按钮
-            Toast.makeText(FrameActivity.this, "消息按钮被点击", Toast.LENGTH_SHORT).show();
+            // 切换到 FriendsRecyclerViewFragment
+            loadFriendListFragment();
+            // 更新 ImageButton 的图片资源
+            btnMsg.setImageResource(R.drawable.p32);
+            // 重置其他 ImageButton 的图片资源
+            btnFri.setImageResource(R.drawable.p3);
+            btnAut.setImageResource(R.drawable.p4);
         });
 
         btnFri.setOnClickListener(v -> {
-            // 点击好友按钮
-            Toast.makeText(FrameActivity.this, "好友按钮被点击", Toast.LENGTH_SHORT).show();
+            // 切换到 ContactFragment
+            loadContactFragment();
+            // 更新 ImageButton 的图片资源
+            btnFri.setImageResource(R.drawable.p5);
+            // 重置其他 ImageButton 的图片资源
+            btnMsg.setImageResource(R.drawable.p2);
+            btnAut.setImageResource(R.drawable.p4);
         });
+
         btnAut.setOnClickListener(v -> {
-            // 点击空间按钮
-            Toast.makeText(FrameActivity.this, "空间按钮被点击", Toast.LENGTH_SHORT).show();
+            // 切换到 DynamicFragment
+            loadDynamicFragment();
+            // 更新 ImageButton 的图片资源
+            btnAut.setImageResource(R.drawable.p6);
+            // 重置其他 ImageButton 的图片资源
+            btnMsg.setImageResource(R.drawable.p2);
+            btnFri.setImageResource(R.drawable.p3);
         });
+    }
+
+    private void initFragments() {
+        friendsFragment = new FriendsRecyclerViewFragment(friends);
+        dynamicFragment = new DynamicFragment();
+        contactFragment = new ContactFragment();
+    }
+
+
+
+    private void loadContactFragment() {
+        showFragment(contactFragment);
+    }
+
+    private void loadDynamicFragment() {
+        showFragment(dynamicFragment);
+    }
+
+    private void showFragment(Fragment fragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.commit();
     }
 
     private void initializeWebSocketClient() {
@@ -458,4 +503,13 @@ public class FrameActivity extends BaseActivity {
             webSocket.close(1000, "Activity destroyed");
         }
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences sharedPreferences = getSharedPreferences("MyRefs", MODE_PRIVATE);
+        boolean fromChatActivity = sharedPreferences.getBoolean("fromChatActivity", false);
+        if (fromChatActivity) {
+            loadFriends(); // 刷新好友列表
+            sharedPreferences.edit().remove("fromChatActivity").apply(); // 清除标志
+        }}
 }

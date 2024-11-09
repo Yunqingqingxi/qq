@@ -71,8 +71,9 @@
         <!-- 底部三个 ImageView，均分宽度和高度 -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="92dp"
+            android:layout_height="70dp"
             android:orientation="horizontal"
+            android:background="#F8F8F8"
             android:gravity="center"
             android:padding="8dp">
 
@@ -80,31 +81,37 @@
                 android:id="@+id/btnMsg"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:src="@drawable/p1"
                 android:layout_margin="8dp"
+                android:layout_weight="1"
+                android:background="#F8F8F8"
                 android:contentDescription="Image 1"
-                android:scaleType="centerInside" />
+                android:scaleType="centerInside"
+                android:src="@drawable/p2"
+                tools:ignore="TouchTargetSizeCheck" />
 
             <ImageButton
                 android:id="@+id/btnFri"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:src="@drawable/p10"
                 android:layout_margin="8dp"
+                android:layout_weight="1"
+                android:background="#F8F8F8"
                 android:contentDescription="Image 2"
-                android:scaleType="centerInside" />
+                android:scaleType="centerInside"
+                android:src="@drawable/p3"
+                tools:ignore="TouchTargetSizeCheck" />
 
             <ImageButton
                 android:id="@+id/btnAut"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:src="@drawable/p8"
                 android:layout_margin="8dp"
+                android:layout_weight="1"
+                android:background="#F8F8F8"
                 android:contentDescription="Image 3"
-                android:scaleType="centerInside" />
+                android:scaleType="centerInside"
+                android:src="@drawable/p4"
+                tools:ignore="TouchTargetSizeCheck" />
         </LinearLayout>
 
     </LinearLayout>
