@@ -5,7 +5,6 @@ import static com.example.qq.websocket.webUtils.controller.WebUtil.login;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -21,9 +20,7 @@ import com.example.qq.websocket.web.WebClient;
 import com.example.qq.websocket.webResult.WebResult;
 import com.example.qq.websocket.webUtils.GetNowUser;
 import com.example.qq.websocket.webUtils.controller.Callback;
-import com.example.qq.websocket.webUtils.controller.WebUtil;
 
-import java.util.List;
 import java.util.Map;
 
 import okhttp3.WebSocket;

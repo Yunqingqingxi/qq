@@ -153,8 +153,8 @@ public class FrameActivity extends BaseActivity {
     }
 
     private void initializeUI() {
-        imageViewAvatar = findViewById(R.id.imageViewAvatar);
-        textViewNickname = findViewById(R.id.textViewNickname);
+        imageViewAvatar = findViewById(R.id.imageAvatar);
+        textViewNickname = findViewById(R.id.textNickname);
         getUserInfo(token, currentUsername, new Callback() {
             @Override
             public void onResult(WebResult<Map<String, Object>> result) throws JSONException {

@@ -15,7 +15,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/imageViewAvatar"
+            android:id="@+id/imageAvatar"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_margin="10dp"
@@ -33,16 +33,16 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/textViewNickname"
+            android:id="@+id/textNickname"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="楚青"
             android:textColor="#333333"
             android:textSize="18sp"
-            app:layout_constraintStart_toEndOf="@id/imageViewAvatar"
-            app:layout_constraintTop_toBottomOf="@id/imageViewAvatar"
-            app:layout_constraintTop_toTopOf="@id/imageViewAvatar" />
+            app:layout_constraintStart_toEndOf="@id/imageAvatar"
+            app:layout_constraintTop_toBottomOf="@id/imageAvatar"
+            app:layout_constraintTop_toTopOf="@id/imageAvatar" />
 
         <TextView
             android:id="@+id/textViewStatus"
@@ -52,8 +52,8 @@
             android:text="手机在线 - WiFi"
             android:textColor="#999999"
             android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="@id/imageViewAvatar"
-            app:layout_constraintStart_toEndOf="@id/imageViewAvatar" />
+            app:layout_constraintBottom_toBottomOf="@id/imageAvatar"
+            app:layout_constraintStart_toEndOf="@id/imageAvatar" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout

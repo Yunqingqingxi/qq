@@ -5,7 +5,6 @@ import static com.example.qq.websocket.webUtils.controller.WebUtil.getChatInfo;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.saveChatInfo;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -174,7 +173,6 @@ public class ChatActivity3 extends BaseActivity {
         friendId = getIntent().getStringExtra("friendId");
         friendNickname = getIntent().getStringExtra("friendNickname");
         currentUsername = getSharedPreferences("MyRefs", MODE_PRIVATE).getString("current_username", "");
-//        dbHelper = new ChatDatabaseHelper(this);
         messageList = new ArrayList<>();
         inputMessage = findViewById(R.id.inputMessage);
         TextView nicknameTextView = findViewById(R.id.nickname);

@@ -12,7 +12,6 @@ import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-
 import com.example.qq.websocket.webResult.WebResult;
 import com.example.qq.websocket.webUtils.controller.Callback;
 

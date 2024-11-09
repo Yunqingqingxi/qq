@@ -2,8 +2,6 @@ package com.example.qq.websocket.webUtils;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.widget.EditText;
 
 public class AddFriendUtil {
