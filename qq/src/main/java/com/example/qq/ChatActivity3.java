@@ -283,9 +283,10 @@ public class ChatActivity3 extends BaseActivity {
     }
 
     private String getCurrentTime() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return LocalDateTime.now().format(formatter);
     }
+
 
     private void setupListeners() {
         findViewById(R.id.backButton).setOnClickListener(v -> finish());  // 关闭当前 ChatActivity

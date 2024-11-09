@@ -79,9 +79,23 @@ public class ChatMessage {
 
     // Private 方法
     private LocalDateTime parseTimestamp(String timestamp) {
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-        return LocalDateTime.parse(timestamp, formatter);
+        try {
+            // 检查是否为ISO 8601格式
+            if (timestamp.contains("T")) {
+                // 按ISO 8601格式解析
+                DateTimeFormatter isoFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+                return LocalDateTime.parse(timestamp, isoFormatter);
+            } else {
+                // 按yyyy-MM-dd HH:mm:ss格式解析
+                DateTimeFormatter defaultFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                return LocalDateTime.parse(timestamp, defaultFormatter);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null; // 如果解析失败，返回null
+        }
     }
+
 
 
     private String formatTimestamp(LocalDateTime timestamp) {
@@ -106,7 +120,6 @@ public class ChatMessage {
             return timestamp;
         }
     }
-
 
 
     // 方法重写

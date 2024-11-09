@@ -1,5 +1,8 @@
 package com.example.qq;
 
+import static com.example.qq.websocket.webUtils.controller.WebUtil.register;
+
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -10,7 +13,12 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 
 
+import com.example.qq.websocket.webResult.WebResult;
+import com.example.qq.websocket.webUtils.controller.Callback;
 
+import org.json.JSONException;
+
+import java.util.Map;
 import java.util.Random;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -35,15 +43,28 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (agreeCheckBox.isChecked()) {
-                    String qqNumber = qqNumberEditText.getText().toString();
+                    String nickname = qqNumberEditText.getText().toString();
                     String qqPassword = qqPasswordEditText.getText().toString();
 
-                    if (!qqNumber.isEmpty() && !qqPassword.isEmpty()) {
+                    if (!nickname.isEmpty() && !qqPassword.isEmpty()) {
                         // 生成随机9位数account
-                        String account = String.format("%09d", new Random().nextInt(900000000) + 100000000);
+                        @SuppressLint("DefaultLocale") String account = String.format("%09d", new Random().nextInt(900000000) + 100000000);
+                        register(nickname, account, qqPassword, new Callback() {
+                            @Override
+                            public void onResult(WebResult<Map<String, Object>> result) throws JSONException {
+                                if (result.getCode() == 200) {
+                                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                    // 将account传递给LoginActivity中的qqNumberEditText
+                                    intent.putExtra("account", account);
+                                    startActivity(intent);
+                                }
+                            }
+                        });
                     }
+
                 }
             }
         });
     }
 }
+

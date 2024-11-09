@@ -1,7 +1,10 @@
 package com.example.qq;
 
 import static com.example.qq.util.JsonUtil.parseMessage;
+import static com.example.qq.util.TimeUtil.formatDateToHHMM;
+import static com.example.qq.util.TimeUtil.formatToHHMM;
 import static com.example.qq.util.TimeUtil.parseISO8601;
+import static com.example.qq.util.TimeUtil.parseTime;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.acceptFriend;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.getFriendList;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.getSpaFriendList;
@@ -16,6 +19,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -38,7 +42,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -62,7 +68,8 @@ public class FrameActivity extends BaseActivity {
     private String token;
     private ImageButton btnMsg,btnFri,btnAut;
     private FriendsRecyclerViewFragment friendsFragment;
-    private EditText editText;
+    private TextView textViewNickname;
+    private ImageView imageViewAvatar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,6 +147,10 @@ public class FrameActivity extends BaseActivity {
     }
 
     private void initializeUI() {
+        imageViewAvatar = findViewById(R.id.imageViewAvatar);
+        imageViewAvatar.setImageResource(R.drawable.p3);
+        textViewNickname = findViewById(R.id.textViewNickname);
+//        textViewNickname.setText(getNowUser.getCurrentNickname());
         imageViewPlus = findViewById(R.id.imageViewPlus);
         imageViewPlus.setOnClickListener(this::showPopupMenu);
     }
@@ -179,65 +190,9 @@ public class FrameActivity extends BaseActivity {
         fetchFriendListFromServer();
     }
 
-//    private void fetchFriendListFromServer() {
-////        getFriendList(token, currentUsername, new Callback() {
-////            @Override
-////            public void onResult(WebResult<Map<String, Object>> result) throws JSONException {
-////                if (result.getCode() == 200) {
-////                    Map<String, Object> data = result.getData();
-////                    Object friendsObj = data.get("friends");
-////
-////                    if (friendsObj instanceof JSONArray) {
-////                        JSONArray friendsArray = (JSONArray) friendsObj;
-////                        List<Map<String, Object>> friendDataList = new ArrayList<>();
-////
-////                        // 将 JSONArray 转换为 List<Map<String, Object>> 以便后续处理
-////                        for (int i = 0; i < friendsArray.length(); i++) {
-////                            JSONObject friendJson = friendsArray.getJSONObject(i);
-////                            Map<String, Object> friendMap = new HashMap<>();
-////                            Iterator<String> keys = friendJson.keys();
-////                            while (keys.hasNext()) {
-////                                String key = keys.next();
-////                                friendMap.put(key, friendJson.get(key));
-////                            }
-////                            friendDataList.add(friendMap);
-////                        }
-////
-////                        // 从网络数据更新好友列表
-////                        updateFriendListWithNetworkData(friendDataList);
-////                    }
-////                }
-////            }
-////        });
-//        getSpaFriendList(token, currentUsername, new Callback() {
-//            @Override
-//            public void onResult(WebResult<Map<String, Object>> result) throws JSONException {
-//                if (result.getCode() == 200) {
-//                    Map<String, Object> data = result.getData();
-//                    Object friendsObj = data.get("friends");
-//                    if (friendsObj instanceof JSONArray) {
-//                        JSONArray friendsArray = (JSONArray) friendsObj;
-//                        List<Map<String, Object>> friendDataList = new ArrayList<>();
-//                        for (int i = 0; i < friendsArray.length(); i++) {
-//                            JSONObject friendJson = friendsArray.getJSONObject(i);
-//                            Map<String, Object> friendMap = new HashMap<>();
-//                            Iterator<String> keys = friendJson.keys();
-//                            while (keys.hasNext()) {
-//                                String key = keys.next();
-//                                friendMap.put(key, friendJson.get(key));
-//                            }
-//                            friendDataList.add(friendMap);
-//                        }
-//                        updateFriendListWithNetworkData(friendDataList);
-//                    }
-//                }
-//            }
-//        });
-//
-//    }
-
     private void fetchFriendListFromServer() {
         getSpaFriendList(token, currentUsername, new Callback() {
+            @SuppressLint("SimpleDateFormat")
             @Override
             public void onResult(WebResult<Map<String, Object>> result) throws JSONException {
                 if (result.getCode() == 200) {
@@ -265,7 +220,9 @@ public class FrameActivity extends BaseActivity {
                                 content = "";  // 如果内容为空，使用默认签名
                             }
                             friend.setContent(content);
-                            friend.setTime(parseISO8601(friendJson.optString("timestamp")));
+//                            friend.setTime(parseISO8601(friendJson.optString("timestamp")));
+                            Date time = formatToHHMM(parseTime(friendJson.optString("timestamp")));
+                            friend.setTime(time); // yyyy-MM-dd HH:mm:ss
                             int avatarResId = friendJson.optInt("avatarResId");
                             if(avatarResId == 0){
                                 avatarResId = R.drawable.p9;  // 如果没有头像资源，使用默认头像
