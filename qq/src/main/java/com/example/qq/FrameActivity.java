@@ -8,6 +8,7 @@ import static com.example.qq.websocket.webUtils.controller.WebUtil.getSpaFriendL
 import static com.example.qq.websocket.webUtils.controller.WebUtil.getUserInfo;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -36,6 +37,7 @@ import com.example.qq.fargments.DynamicFragment;
 import com.example.qq.fargments.FriendsRecyclerViewFragment;
 import com.example.qq.pojo.Friend;
 import com.example.qq.pojo.User;
+import com.example.qq.service.MyService;
 import com.example.qq.websocket.db.FriendDatabaseHelper;
 import com.example.qq.websocket.domain.Message;
 import com.example.qq.websocket.web.WebClient;
@@ -82,10 +84,17 @@ public class FrameActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fragment);
 
-        getNowUser = new GetNowUser(FrameActivity.this);
-        currentUsername = getNowUser.getCurrentUsername(); // 获取当前用户名
         SharedPreferences sharedPreferences = getSharedPreferences("MyRefs", MODE_PRIVATE);
         token = sharedPreferences.getString("token", "");
+
+//         启动服务
+//        Intent serviceIntent = new Intent(this, MyService.class);
+//        serviceIntent.putExtra("token", token);
+//        startService(serviceIntent);
+
+        getNowUser = new GetNowUser(FrameActivity.this);
+        currentUsername = getNowUser.getCurrentUsername(); // 获取当前用户名
+
 
         initializeWebSocketClient();
         initializeUI();
@@ -420,9 +429,6 @@ public class FrameActivity extends BaseActivity {
                         // 刷新好友列表
                         fetchFriendListFromServer();  // 重新加载好友列表
 
-//                        // 如果有必要，也可以直接手动刷新数据
-//                        friendAdapter.notifyDataSetChanged(); // 通知适配器更新
-//                        System.out.println("Succee");
                     });
                 }
             }
@@ -470,6 +476,21 @@ public class FrameActivity extends BaseActivity {
             if (item.getItemId() == R.id.menu_add_friend) {
                 showAddFriendDialog();
                 return true;
+            }
+            if(item.getItemId() == R.id.menu_other_option){
+                // 实现注销,清除当前存储的用户名和token，断开websocket
+                SharedPreferences.Editor editor = getSharedPreferences("MyRefs", MODE_PRIVATE).edit();
+                editor.remove("current_username");
+                editor.remove("token");
+                editor.apply();
+                // 断开WebSocket连接
+                if (webSocket != null) {
+                    webSocket.close(1000, "User logged out");
+                }
+                // 回到登录界面
+                Intent intent = new Intent(FrameActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
             }
             return false;
         });

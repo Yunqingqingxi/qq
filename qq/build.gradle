@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId "com.example.qq"
         minSdk 31
-        targetSdk 27
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 

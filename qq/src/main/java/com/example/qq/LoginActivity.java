@@ -1,5 +1,6 @@
 package com.example.qq;
 
+import static android.Manifest.permission.POST_NOTIFICATIONS;
 import static com.example.qq.websocket.webUtils.controller.WebUtil.login;
 
 import android.app.AlertDialog;
@@ -8,6 +9,7 @@ import android.app.LauncherActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
@@ -26,6 +28,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.qq.websocket.WebSocketManager;
 import com.example.qq.websocket.domain.Message;
@@ -80,14 +84,15 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // 禁用登录按钮，1.5s
                 String qqNumber = qqNumberEditText.getText().toString();
                 String qqPassword = qqPasswordEditText.getText().toString();
+
                 if (!qqNumber.isEmpty() && !qqPassword.isEmpty()) {
                     if (!agreeCheckBox.isChecked()) {
                         Toast.makeText(LoginActivity.this, "请先同意用户协议", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    showLoading(true);
                     startLogin(qqNumber, qqPassword);
                 } else {
                     Toast.makeText(LoginActivity.this, "请输入账号和密码", Toast.LENGTH_SHORT).show();
@@ -105,6 +110,31 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
+//    private void requestNotificationPermission() {
+//        if (ContextCompat.checkSelfPermission(this, POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this, new String[]{POST_NOTIFICATIONS}, PERMISSION_REQUEST_CODE);
+//        } else {
+//            // 已经拥有权限，可以在这里发送通知或者结束活动
+//            finish();
+//        }
+//    }
+//
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        if (requestCode == PERMISSION_REQUEST_CODE) {
+//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                // 用户授予了权限，可以发送通知
+//                finish(); // 结束活动
+//            } else {
+//                // 用户拒绝了权限请求
+//                Toast.makeText(this, "无法发送通知，因为没有权限", Toast.LENGTH_SHORT).show();
+//                finish(); // 结束活动
+//            }
+//    }
+//}
+
 
     private void checkLoginStatus() {
         SharedPreferences sharedPreferences = getSharedPreferences("MyRefs", MODE_PRIVATE);
@@ -130,11 +160,12 @@ public class LoginActivity extends AppCompatActivity {
                 public void run() {
                     showLoading(false);
                 }
-            }, 2000); // 延迟1.5秒，给加载动画时间
+            }, 2500); // 延迟2.5秒，给加载动画时间
         }
     }
 
     public void startLogin(String username, String password) {
+        showLoading(true);
         // 登录的逻辑
         login(username, password, new Callback() {
             @Override
@@ -233,5 +264,11 @@ public class LoginActivity extends AppCompatActivity {
             String jsonMessage = onlineMessage.toJson().toString();
             webSocket.send(jsonMessage);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        showLoading(false);
+        super.onDestroy();
     }
 }

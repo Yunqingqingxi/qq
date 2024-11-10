@@ -5,5 +5,5 @@
         android:title="添加好友" />
     <item
         android:id="@+id/menu_other_option"
-        android:title="其他选项" />
+        android:title="注销" />
 </menu>

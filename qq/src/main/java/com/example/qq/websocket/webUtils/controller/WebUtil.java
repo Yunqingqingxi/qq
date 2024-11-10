@@ -69,7 +69,10 @@ public class WebUtil {
                 webResult.setData(result.getData());
                 return webResult; // 登录成功
             } else {
-                return WebResult.error(null); // 返回错误信息
+                webResult = WebResult.error(null);
+                webResult.setCode(400);
+                webResult.setMessage("账号或密码错误");
+                return webResult;// 返回错误信息
             }
         } catch (Exception e) {
             e.printStackTrace();
