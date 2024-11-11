@@ -336,5 +336,12 @@ public class ChatActivity3 extends BaseActivity {
             }
         }
     }
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SharedPreferences sharedPreferences = getSharedPreferences("MyRefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("fromChatActivity", true);
+        editor.apply();
     }
+}

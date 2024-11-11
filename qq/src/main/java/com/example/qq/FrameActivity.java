@@ -502,6 +502,16 @@ public class FrameActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences sharedPreferences = getSharedPreferences("MyRefs", MODE_PRIVATE);
+        boolean fromChatActivity = sharedPreferences.getBoolean("fromChatActivity", false);
+        if (fromChatActivity) {
+            loadFriends(); // 刷新好友列表
+            sharedPreferences.edit().remove("fromChatActivity").apply(); // 清除标志
+        }}
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (webSocket != null) {
