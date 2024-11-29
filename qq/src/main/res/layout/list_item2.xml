@@ -33,4 +33,11 @@
             android:textSize="14sp"
             android:textColor="#888888" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/loginButton"
+        android:imeOptions="actionDone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="登录" />
 </LinearLayout>

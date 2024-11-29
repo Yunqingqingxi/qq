@@ -1,13 +1,6 @@
 package com.example.qq.adapter;
 
-import static com.example.qq.util.TimeUtil.formatTime;
-
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,170 +8,91 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.qq.ChatActivity3;
+import com.bumptech.glide.Glide;
 import com.example.qq.R;
-import com.example.qq.pojo.Friend;
+import com.example.qq.domain.FriendList;
 
 import java.util.List;
 
-/**
- * 好友列表适配器，用于显示好友信息的 RecyclerView
- */
-public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendViewHolder> {
+public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder> {
+    private final List<FriendList> friendLists;
+    private final Context context;
+    private OnItemClickListener onItemClickListener;
 
-    private List<Friend> friendList;  // 好友列表
-    private Context context;  // 上下文
-
-    /**
-     * 构造函数
-     *
-     * @param context    上下文
-     * @param friendList 好友列表
-     */
-    public FriendAdapter(Context context, List<Friend> friendList) {
+    public FriendAdapter(Context context, List<FriendList> friendLists) {
         this.context = context;
-        this.friendList = friendList;
+        this.friendLists = friendLists;
     }
 
     @NonNull
     @Override
-    public FriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // 使用布局填充器加载 item_friend 布局
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_friend, parent, false);
-        return new FriendViewHolder(view);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FriendViewHolder holder, int position) {
-        // 绑定好友数据到视图
-        Friend friend = friendList.get(position);
-        holder.bind(friend);
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        FriendList friend = friendLists.get(position);
+
+        // 设置头像
+        Glide.with(context)
+            .load(friend.getAvatarUrl())
+            .placeholder(R.drawable.default_avatar)
+            .error(R.drawable.default_avatar)
+            .circleCrop()
+            .into(holder.imageViewAvatar);
+
+        // 设置昵称
+        holder.textViewNickname.setText(friend.getFriendNickName());
+        
+        // 设置最后消息
+        holder.textViewMessage.setText(friend.getLastContext());
+        
+        // 设置时间
+        holder.textViewTime.setText(friend.getLastContextTime());
+
+        // 设置点击事件
+        holder.itemView.setOnClickListener(v -> {
+            if (onItemClickListener != null) {
+                onItemClickListener.onItemClick(friend, position);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return friendList.size();  // 返回好友数量
+        return friendLists.size();
     }
 
-    /**
-     * 更新好友列表
-     *
-     * @param newFriendList 新的好友列表
-     */
-    @SuppressLint("NotifyDataSetChanged")
-    public void updateFriendList(List<Friend> newFriendList) {
-        if (newFriendList != null) {
-            this.friendList.clear();  // 清空旧数据
-            this.friendList.addAll(newFriendList);  // 添加新数据
-            notifyDataSetChanged();  // 通知适配器更新视图
-        }
+    public void updateData(List<FriendList> newData) {
+        friendLists.clear();
+        friendLists.addAll(newData);
+        notifyDataSetChanged();
     }
 
-    /**
-     * 向好友列表中添加一个新的好友
-     *
-     * @param friend 新添加的好友
-     */
-    public void addFriend(Friend friend) {
-        if (!friendList.contains(friend)) {
-            friendList.add(friend);
-            notifyItemInserted(friendList.size() - 1);  // 通知插入了新项
-        }
-    }
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        ImageView imageViewAvatar;
+        TextView textViewNickname;
+        TextView textViewMessage;
+        TextView textViewTime;
 
-    /**
-     * 获取 ItemTouchHelper 的回调
-     *
-     * @return ItemTouchHelper.Callback
-     */
-    public ItemTouchHelper.Callback getItemTouchHelperCallback() {
-        return new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
-                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView,
-                                  @NonNull RecyclerView.ViewHolder viewHolder,
-                                  @NonNull RecyclerView.ViewHolder target) {
-                // 处理拖拽移动
-                int fromPosition = viewHolder.getBindingAdapterPosition();
-                int toPosition = target.getBindingAdapterPosition();
-                // 更新数据源
-                Friend movedFriend = friendList.remove(fromPosition);
-                friendList.add(toPosition, movedFriend);
-                notifyItemMoved(fromPosition, toPosition);
-                return true;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                // 处理侧滑删除
-                int position = viewHolder.getBindingAdapterPosition();
-                // 从数据源中移除该好友
-                friendList.remove(position);
-                notifyItemRemoved(position);
-            }
-        };
-    }
-
-    /**
-     * ViewHolder 类，表示好友列表中每个项的视图
-     */
-    class FriendViewHolder extends RecyclerView.ViewHolder {
-        private ImageView imageViewAvatar;  // 头像视图
-        private TextView textViewNickname;  // 昵称视图
-        private TextView textViewMessage;    // 消息视图
-        private TextView textViewTime;       // 时间视图
-
-        public FriendViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imageViewAvatar = itemView.findViewById(R.id.imageViewAvatar1);
             textViewNickname = itemView.findViewById(R.id.textViewNickname1);
             textViewMessage = itemView.findViewById(R.id.textViewMessage);
             textViewTime = itemView.findViewById(R.id.textViewTime);
-
-            // itemView 的点击事件
-            itemView.setOnClickListener(v -> {
-                int position = getBindingAdapterPosition();
-                if (position != RecyclerView.NO_POSITION) {
-                    Friend friend = friendList.get(position);
-                    Intent intent = new Intent(context, ChatActivity3.class); // 替换为 ChatActivity 的类名
-//                    intent.putExtra("userAvatar",);
-                    intent.putExtra("friendAvatar", friend.getAvatar()); // 传递好友头像
-                    intent.putExtra("friendNickname", friend.getNickname()); // 传递好友昵称
-                    intent.putExtra("friendId", friend.getUsername()); // 传递好友 ID（假设你有这个字段）
-                    context.startActivity(intent);
-                }
-            });
         }
+    }
 
-        public void bind(Friend friend) {
+    public interface OnItemClickListener {
+        void onItemClick(FriendList friend, int position);
+    }
 
-            String avatarBase64 = friend.getAvatar();
-            if (avatarBase64 != null && !avatarBase64.isEmpty()) {
-                // 解码 Base64 字符串为字节数组
-                byte[] avatarBytes = Base64.decode(avatarBase64, Base64.DEFAULT);
-                if (avatarBytes != null) {
-                    // 将字节数组转换为 Bitmap
-                    Bitmap avatarBitmap = BitmapFactory.decodeByteArray(avatarBytes, 0, avatarBytes.length);
-                    if (avatarBitmap != null) {
-                        imageViewAvatar.setImageBitmap(avatarBitmap);
-                    } else {
-                        // 如果转换失败，使用默认头像
-                        imageViewAvatar.setImageResource(R.drawable.p14);
-                    }
-                }
-            } else {
-                // 如果没有头像，使用默认头像
-                imageViewAvatar.setImageResource(R.drawable.p14);
-            }
-
-            textViewNickname.setText(friend.getNickname());
-            textViewMessage.setText(friend.getContent());
-            textViewTime.setText(formatTime(friend.getTime()));
-
-        }
-
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.onItemClickListener = listener;
     }
 }

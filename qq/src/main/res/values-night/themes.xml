@@ -1,7 +1,7 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.MyApplication" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 夜间模式主题 -->
+    <style name="Base.Theme.As003" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- 夜间模式特定的定制 -->
     </style>
 </resources>
