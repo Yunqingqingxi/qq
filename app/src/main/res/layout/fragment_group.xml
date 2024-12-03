@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FDFDFD"
+    android:padding="16dp">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+
+        <!-- LinearLayout for "特别关心" -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout_specialConcern"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <ImageView
+                android:id="@+id/imageView_specialConcern"
+                android:layout_width="20dp"
+                android:layout_height="30dp"
+                android:src="@drawable/p33" />
+
+            <TextView
+                android:id="@+id/textView_specialConcern"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="特别关心"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/listView_specialConcern1"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:layout_height="295dp" />
+
+        <!-- LinearLayout for "我的好友" -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout_myFriends"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <ImageView
+                android:id="@+id/imageView_myFriends"
+                android:layout_width="20dp"
+                android:layout_height="30dp"
+                android:src="@drawable/p33" />
+
+            <TextView
+                android:id="@+id/textView_myFriends"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="我的好友"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/listView_myFriends"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:layout_height="1250dp" />
+
+        <!-- LinearLayout for "大学同学" -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout_universityFriends"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <ImageView
+                android:id="@+id/imageView_universityFriends"
+                android:layout_width="20dp"
+                android:layout_height="30dp"
+                android:src="@drawable/p33" />
+
+            <TextView
+                android:id="@+id/textView_universityFriends"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="大学同学"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/listView_universityFriends"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:layout_height="370dp" />
+
+        <!-- LinearLayout for "高中同学" -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout_highSchoolFriends"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <ImageView
+                android:id="@+id/imageView_highSchoolFriends"
+                android:layout_width="20dp"
+                android:layout_height="30dp"
+                android:src="@drawable/p33" />
+
+            <TextView
+                android:id="@+id/textView_highSchoolFriends"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="高中同学"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/listView_highSchoolFriends"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:layout_height="1250dp" />
+
+        <!-- LinearLayout for "初中同学" -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout_middleSchoolFriends"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <ImageView
+                android:id="@+id/imageView_middleSchoolFriends"
+                android:layout_width="20dp"
+                android:layout_height="30dp"
+                android:src="@drawable/p33" />
+
+            <TextView
+                android:id="@+id/textView_middleSchoolFriends"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="初中同学"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/listView_middleSchoolFriends"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:layout_height="620dp" />
+
+        <!-- LinearLayout for "小学同学" -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout_primarySchoolFriends"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <ImageView
+                android:id="@+id/imageView_primarySchoolFriends"
+                android:layout_width="20dp"
+                android:layout_height="30dp"
+                android:src="@drawable/p33" />
+
+            <TextView
+                android:id="@+id/textView_primarySchoolFriends"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="小学同学"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/listView_primarySchoolFriends"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:layout_height="220dp" />
+    </LinearLayout>
+</ScrollView>

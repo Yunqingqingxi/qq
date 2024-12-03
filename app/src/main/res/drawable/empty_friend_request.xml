@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    
+    <!-- 背景圆圈 -->
+    <path
+        android:fillColor="#F5F5F5"
+        android:pathData="M60,60m-60,0a60,60 0,1 1,120 0a60,60 0,1 1,-120 0"/>
+    
+    <!-- 人物图标 -->
+    <path
+        android:fillColor="#CCCCCC"
+        android:pathData="M60,45m-20,0a20,20 0,1 1,40 0a20,20 0,1 1,-40 0"/>
+    <path
+        android:fillColor="#CCCCCC"
+        android:pathData="M60,70C44.536,70 32,82.536 32,98H88C88,82.536 75.464,70 60,70Z"/>
+    
+    <!-- 加号 -->
+    <path
+        android:fillColor="#CCCCCC"
+        android:pathData="M85,35H95V45H85V55H75V45H65V35H75V25H85V35Z"/>
+</vector> 

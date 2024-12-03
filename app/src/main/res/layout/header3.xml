@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="#FDFDFD"
+    android:gravity="center_vertical"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/header_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="动态"
+        android:textSize="18sp"
+        />
+
+    <ImageView
+        android:id="@+id/header_icon1"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/p36" /> <!-- 替换为您的图标资源 -->
+
+    <ImageView
+        android:id="@+id/header_icon2"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/p37" /> <!-- 替换为您的图标资源 -->
+
+</LinearLayout>
